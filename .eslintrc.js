@@ -11,5 +11,17 @@ module.exports = {
   extends: ['@nuxtjs', 'plugin:nuxt/recommended', 'prettier'],
   plugins: [],
   // add your custom rules here
-  rules: {},
+  rules: {
+    "arrow-spacing": "error",
+    "comma-dangle": ["error", "always-multiline"],
+    "comma-spacing": ["error", { "before": false, "after": true }],
+    "no-multi-spaces": ["error"],
+    "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 0 }],
+    "semi-spacing": ["error", {"before": false, "after": true}],
+    "key-spacing": ["error", { "afterColon": true }],
+    "keyword-spacing": ["error", { "after": true }],
+    "vue/script-indent": [ "error", 2, {
+      "baseIndent": 1,
+    }],
+  },
 }
