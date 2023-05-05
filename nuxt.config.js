@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
@@ -19,13 +21,13 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;700;800&display=swap' }
+      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;700;800&display=swap' },
     ],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
-    '@/assets/scss/main.scss'
+    '@/assets/scss/main.scss',
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
@@ -58,8 +60,13 @@ export default {
   build: {
     loaders: {
       scss: {
-        additionalData: `@import "@/assets/scss/variables.scss";`
-      }
-    }
+        additionalData: `@import "@/assets/scss/variables.scss";`,
+      },
+    },
+  },
+
+  env: {
+    SUPABASE_URL: process.env.SUPABASE_URL,
+    SUPABASE_KEY: process.env.SUPABASE_KEY,
   },
 }
