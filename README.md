@@ -15,11 +15,15 @@ git clone https://github.com/matheusfnl/weshelf.git weshelf
 ```bash
 cd weshelf
 ```
-4) Instale as bibliotecas
+4) Configure as variáveis de ambiente
+```bash
+cp .env.example .env
+```
+5) Instale as bibliotecas
 ```bash
 npm install
 ```
-5) Crie as branches necessárias
+6) Crie as branches necessárias
 ```bash
 git checkout -b develop
 ```
