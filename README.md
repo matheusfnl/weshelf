@@ -1,68 +1,84 @@
 # weshelf
 
-## Build Setup
+## Faça um Fork do proejto
 
+Tutorial bacana do moço gente boa (https://www.youtube.com/watch?v=q-QTbNu8Ybc)
+
+## Clonando o projeto
+
+1) Primeiro crie uma pasta onde o projeto será armazenado
+2) Clone o projeto
 ```bash
-# install dependencies
-$ npm install
+git clone https://github.com/matheusfnl/weshelf.git weshelf
+```
+3) Entre na pasta do projeto
+```bash
+cd weshelf
+```
+4) Configure as variáveis de ambiente
+```bash
+cp .env.example .env
+```
+5) Instale as bibliotecas
+```bash
+npm install
+```
+6) Crie as branches necessárias
+```bash
+git checkout -b develop
+```
+A **develop** vai ser a branch onde o código atualizado vai estar armazenado, porém não é a main (github), dessa forma vamos evitar o envio de código incorreto.
 
-# serve with hot reload at localhost:3000
-$ npm run dev
+ 
+## Iniciando o servidor
+```bash
+npm run dev
+```
+O servidor *provavelmente* vai estar no seu ```localhost:3000/```
 
-# build for production and launch server
-$ npm run build
-$ npm run start
 
-# generate static project
-$ npm run generate
+## Como iniciar uma tarefa
+Antes de iniciar uma tarefa, dê um objetivo para ela, ao invés de "Criar a tela de *talcoisa*", divida essa tela em partes, faça o código de cada parte separadamente, isso torna mais facil de resolver possíveis conflitos de código, além de ser mais organizado.
+
+#### Exemplo de desenvolvimento da tarefa: criar menu 
+Antes de qualquer coisa certifique-se de estar na branch develop (!!)
+```bash
+git checkout develop
+```
+1) Crie uma nova branch local para aquela tarefa em especifico
+```bash
+git checkout -b nome-da-branch
+```
+O nome da branch é relacionado a tarefa que você está realizando, portanto o ideal para a tarefa **criar menu** seria ```cria-menu-do-weshelf``` ou algo parecido. Após criar a branch, você pode começar a codar sua tarefa.
+
+2) Após finalizada, adicione os arquivos
+```bash
+# adicionando todos os arquivos de uma vez
+git add .
+# ou adicionar um arquivo por vez
+git add *nomedoarquivo* 
 ```
 
-For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
+3) Agora realize o commit dos arquivos, se você adicionar um arquivo apos o commit, outro commit vai ser necessário. Realize quantos commits quiser :D
+```bash
+git commit -m nome-do-commit
+```
 
-## Special Directories
+5) Mescle o código atualizado da develop no seu código
 
-You can create the following extra directories, some of which have special behaviors. Only `pages` is required; you can delete them if you don't want to use their functionality.
+Tenha certeza de ter feito o commit de TODOS OS ARQUIVOS antes de realizar esse passo
+```bash
+git checkout develop
+git pull
+git checkout nome-da-branch
+git merge develop
+```
+Caso dê conflitos de código, vai ser necessário corrigir os conflitos e voltar ao passo 2.
 
-### `assets`
+4) Envie o arquivo para o github
+```bash
+git push origin develop
+# caso apareça uma mensagem pendindo para realizar o push com um outro código, copie e cole o código proposto
+```
 
-The assets directory contains your uncompiled assets such as Stylus or Sass files, images, or fonts.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/assets).
-
-### `components`
-
-The components directory contains your Vue.js components. Components make up the different parts of your page and can be reused and imported into your pages, layouts and even other components.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/components).
-
-### `layouts`
-
-Layouts are a great help when you want to change the look and feel of your Nuxt app, whether you want to include a sidebar or have distinct layouts for mobile and desktop.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/layouts).
-
-### `pages`
-
-This directory contains your application views and routes. Nuxt will read all the `*.vue` files inside this directory and setup Vue Router automatically.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/get-started/routing).
-
-### `plugins`
-
-The plugins directory contains JavaScript plugins that you want to run before instantiating the root Vue.js Application. This is the place to add Vue plugins and to inject functions or constants. Every time you need to use `Vue.use()`, you should create a file in `plugins/` and add its path to plugins in `nuxt.config.js`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/plugins).
-
-### `static`
-
-This directory contains your static files. Each file inside this directory is mapped to `/`.
-
-Example: `/static/robots.txt` is mapped as `/robots.txt`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/static).
-
-### `store`
-
-This directory contains your Vuex store files. Creating a file in this directory automatically activates Vuex.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/store).
+5) Vá para o github e crie uma Pull Request para isso siga o tutorial dese moço gente boa a partir do tempo *5:06* (https://www.youtube.com/watch?v=Du04jBWrv4A)
