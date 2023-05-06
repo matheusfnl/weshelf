@@ -62,7 +62,7 @@ git commit -m nome-do-commit
 
 5) Mescle o código atualizado da develop no seu código
 
-Tenha certeza de ter feito o commit antes de realizar esse passo
+Tenha certeza de ter feito o commit de TODOS OS ARQUIVOS antes de realizar esse passo
 ```bash
 git checkout develop
 git pull
