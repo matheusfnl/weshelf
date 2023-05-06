@@ -23,5 +23,6 @@ module.exports = {
     "vue/script-indent": [ "error", 2, {
       "baseIndent": 1,
     }],
+    "vue/prop-name-casing": ["error", "snake_case"],
   },
 }

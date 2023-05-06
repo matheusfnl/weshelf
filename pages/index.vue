@@ -1,5 +1,5 @@
 <template>
-  <div>Eai</div>
+  <div />
 </template>
 
 <script>
