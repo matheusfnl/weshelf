@@ -20,6 +20,7 @@
   import favHistory1 from '../static/home/favh-1.png'
   import favHistory2 from '../static/home/favh-2.png'
   import favHistory3 from '../static/home/favh-3.png'
+  import favHistory4 from '../static/home/favh-4.jpg'
 
   export default {
     name: 'MainPage',
@@ -63,6 +64,15 @@
             search: {
               keyword: '',
               gender: 'romance',
+            },
+          },
+          {
+            title: 'uma jornada épica',
+            subtitle: 'universos inexplorados e histórias de outro mundo',
+            image: favHistory4,
+            search: {
+              keyword: '',
+              gender: 'fiction',
             },
           },
         ],

@@ -39,7 +39,7 @@
   .title {
     color: $primary-orange;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 22px;
     line-height: 36px;
     margin-bottom: 30px;
   }
@@ -52,8 +52,7 @@
     .banner {
       flex:1;
       cursor: pointer;
-      min-height: 220px;
-      min-height: 250px;
+      min-height: 190px;
       background-size: cover;
       background-position: center;
       border-radius: 10px;

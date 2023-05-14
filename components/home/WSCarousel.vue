@@ -82,7 +82,7 @@
     position: relative;
     overflow: hidden;
     text-align: center;
-    height: 245px;
+    height: 198px;
 
     .carousel-images {
       display: flex;

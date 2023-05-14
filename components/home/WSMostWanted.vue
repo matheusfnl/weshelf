@@ -160,7 +160,7 @@
   .title {
     color: $primary-orange;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 22px;
     line-height: 36px;
     margin-bottom: 30px;
     position: relative;
