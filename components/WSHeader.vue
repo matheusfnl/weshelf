@@ -109,7 +109,7 @@
   .header {
     background-color: $light-1;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
-    height: 120px;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
