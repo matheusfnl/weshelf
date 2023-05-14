@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <div class="carousel-buttons">
+    <div v-if="resources.length > 1" class="carousel-buttons">
       <button
         class="carousel-button carousel-button-prev"
         @click="prev"
@@ -92,7 +92,7 @@
       div {
         height: 245px;
         background-size: cover;
-        background-position: bottom;
+        background-position: bottom right;
       }
     }
 
@@ -124,9 +124,9 @@
 
         &:before {
           content: "<";
-          font-size: 24px;
-          -webkit-filter: drop-shadow(0px 0px 5px #222);
-          filter: drop-shadow(0px 0px 5px #222);
+          font-size: 34px;
+          -webkit-filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
+          filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
         }
       }
 
@@ -135,9 +135,11 @@
 
         &:before {
           content: ">";
-          font-size: 24px;
+          font-size: 34px;
           -webkit-filter: drop-shadow(0px 0px 5px #222);
           filter: drop-shadow(0px 0px 5px #222);
+          -webkit-filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
+          filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
         }
       }
     }
