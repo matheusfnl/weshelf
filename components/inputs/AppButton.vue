@@ -64,6 +64,10 @@
           return 'btn-primary';
         }
 
+        if (this.color === 'primary-yellow') {
+          return 'btn-primary-yellow';
+        }
+
         if (this.color === 'white') {
           return 'btn-white';
         }
@@ -74,6 +78,10 @@
       getBtnColor() {
         if (this.text_color === 'white') {
           return 'btn-text-white';
+        }
+
+        if (this.color === 'primary-yellow') {
+          return 'btn-text-primary-yellow';
         }
 
         if (this.text_color === 'primary') {
@@ -137,11 +145,26 @@
       }
     }
 
+    &-primary-yellow {
+      background-color: $primary-yellow;
+      &:hover { background: darken($primary-yellow, 5%) }
+      &:focus { box-shadow: 0 0 0 0.2rem rgba($primary-yellow, 0.5); }
+      &:active {
+        background-color: $primary-yellow !important;
+        &:focus { box-shadow: 0 0 0 0.2rem rgba($primary-yellow, 0.5) !important; }
+      }
+      &:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba($primary-yellow, 0.5);
+      }
+    }
+
     &-text {
       // White
       &-white { color: $light-1; }
       // Primary
       &-primary { color: $primary-orange; }
+      &-primary-yellow { color: $primary-yellow; }
     }
   }
 </style>

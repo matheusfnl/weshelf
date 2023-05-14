@@ -1,65 +1,75 @@
 <template>
-  <div class="header">
-    <div class="d-flex header-max-width">
-      <img
-        src="../static/weshelf-logo.png"
-        class="logo"
-      />
+  <transition name="header">
+    <div
+      v-if="shouldShowHeader"
+      class="header"
+    >
+      <div class="d-flex header-max-width">
+        <NuxtLink to="/">
+          <img
+            src="../static/weshelf-logo.png"
+            class="logo"
+            draggable="false"
+          />
+        </NuxtLink>
 
-      <div class="header-options">
-        <div class="mr-4 d-flex">
-          <div
-            class="options-icon"
-            :class="{ 'upscale-animation' : ! should_show_search_bar }"
-            @click="showSearchBar"
-          >
-            <label v-click-outside="closeSearchBar" class="m-0 position-absolute">
-              <transition name="input-field" mode="out-in">
-                <div
-                  v-show="should_show_search_bar"
-                  class="input-field expand"
-                >
-                  <input
-                    ref="searchInput"
-                    v-model="search_value"
-                    type="text"
-                  />
-                </div>
-              </transition>
+        <div class="header-options">
+          <div class="mr-4 d-flex">
+            <div
+              class="options-icon"
+              :class="{ 'upscale-animation' : ! should_show_search_bar }"
+              @click="showSearchBar"
+            >
+              <label v-click-outside="closeSearchBar" class="m-0 position-absolute">
+                <transition name="input-field" mode="out-in">
+                  <div
+                    v-show="should_show_search_bar"
+                    class="input-field expand"
+                  >
+                    <input
+                      ref="searchInput"
+                      v-model="search_value"
+                      type="text"
+                    />
+                  </div>
+                </transition>
 
-              <img
-                src="../static/header/search-icon.svg"
-                class="search-icon"
-                :class="{'sm-icon' : should_show_search_bar}"
-              />
-            </label>
+                <img
+                  src="../static/header/search-icon.svg"
+                  class="search-icon"
+                  :class="{'sm-icon' : should_show_search_bar}"
+                />
+              </label>
+            </div>
+
+            <div class="options-icon upscale-animation">
+              <img src="../static/header/bag-icon.svg" />
+            </div>
+
+            <div class="options-icon upscale-animation">
+              <img src="../static/header/user-icon.svg" />
+            </div>
           </div>
 
-          <div class="options-icon upscale-animation">
-            <img src="../static/header/bag-icon.svg" />
-          </div>
+          <div class="vertical-line" />
 
-          <div class="options-icon upscale-animation">
-            <img src="../static/header/user-icon.svg" />
-          </div>
+          <NuxtLink to="/login">
+            <AppButton
+              color="white"
+              text_color="primary"
+              bold
+            >
+              ENTRAR
+            </AppButton>
+          </NuxtLink>
+
+          <AppButton bold>
+            PUBLICAR
+          </AppButton>
         </div>
-
-        <div class="vertical-line" />
-
-        <AppButton
-          color="white"
-          text_color="primary"
-          bold
-        >
-          ENTRAR
-        </AppButton>
-
-        <AppButton bold>
-          PUBLICAR
-        </AppButton>
       </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script>
@@ -74,6 +84,16 @@
         should_show_search_bar: false,
         search_value: '',
       };
+    },
+
+    computed: {
+      shouldShowHeader() {
+        return ! [
+          'login',
+          'register',
+          'recover',
+        ].includes(this.$route.name);
+      },
     },
 
     methods: {
@@ -197,4 +217,9 @@
     transition: opacity 0.05s ease-in;
     opacity: 0;
   }
+
+  .header-enter-active,
+  .header-leave-active { transition: opacity 0.1s; }
+  .header-enter,
+  .header-leave-to { opacity: 0; }
 </style>

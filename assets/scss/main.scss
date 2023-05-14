@@ -2,3 +2,14 @@ body {
   font-family: Inter;
   background-color: $light-1;
 }
+
+.auth {
+  font-family: Inter;
+  background-color: #F7F7F7;
+}
+
+// Transição
+.page-enter-active,
+.page-leave-active { transition: opacity 0.1s; }
+.page-enter,
+.page-leave-to { opacity: 0; }
