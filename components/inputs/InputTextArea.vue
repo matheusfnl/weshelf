@@ -8,7 +8,7 @@
       </span>
     </label>
 
-    <input
+    <textarea
       :id="id"
       :value="value"
       :placeholder="placeholder"
@@ -23,7 +23,7 @@
 
 <script>
   export default {
-    name: 'InputText',
+    name: 'InputTextArea',
     props: {
       id: {
         type: String,
@@ -76,8 +76,8 @@
     .required-icon { color: $dark-orange; }
   }
 
-  input {
-    height: 38px;
+  textarea {
+    height: 96px;
     color: $black;
     outline: 0;
     border-radius: 6px;
@@ -85,11 +85,12 @@
     border-style: solid;
     border-color: $light-grey;
     transition: all .3s;
-    padding: 0px .5rem;
+    padding: .5rem .5rem;
     font-size: 12px;
+    resize: none;
   }
 
-  input:focus {
+  textarea:focus {
     border-color: $primary-orange;
     outline: 1px normal #000
   }

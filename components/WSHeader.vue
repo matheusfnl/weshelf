@@ -63,9 +63,11 @@
             </AppButton>
           </NuxtLink>
 
-          <AppButton bold>
-            PUBLICAR
-          </AppButton>
+          <NuxtLink to="/announce">
+            <AppButton bold>
+              PUBLICAR
+            </AppButton>
+          </NuxtLink>
         </div>
       </div>
     </div>

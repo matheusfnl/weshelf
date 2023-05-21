@@ -8,22 +8,30 @@
       </span>
     </label>
 
-    <input
-      :id="id"
-      :value="value"
-      :placeholder="placeholder"
-      spellcheck="false"
-      :type="type"
-      @change="$emit('model', $event.target.value)"
-      @blur="$emit('blur')"
-      @input="$emit('input')"
-    />
+    <div class="input-area">
+      <input
+        :id="id"
+        :value="value"
+        :placeholder="placeholder"
+        spellcheck="false"
+        type="number"
+        min="0"
+        @change="$emit('model', $event.target.value)"
+        @blur="$emit('blur')"
+        @input="$emit('input')"
+      />
+
+      <div class="input-label">
+        R$
+        <span>|</span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
   export default {
-    name: 'InputText',
+    name: 'InputNumber',
     props: {
       id: {
         type: String,
@@ -36,7 +44,7 @@
       },
 
       value: {
-        type: String,
+        type: Number,
         required: true,
       },
 
@@ -66,6 +74,23 @@
     margin-bottom: 1rem;
   }
 
+  .input-area {
+    position: relative;
+    width: 100%;
+
+    .input-label {
+      position: absolute;
+      transform: translateY(-8px);
+      top: 50%;
+      left: 8px;
+      font-size: 12px;
+
+      span {
+        color: #DDDDDD;
+      }
+    }
+  }
+
   label {
     font-size: 12px;
     line-height: 15px;
@@ -85,8 +110,9 @@
     border-style: solid;
     border-color: $light-grey;
     transition: all .3s;
-    padding: 0px .5rem;
     font-size: 12px;
+    width: 100%;
+    padding-left: 36px;
   }
 
   input:focus {

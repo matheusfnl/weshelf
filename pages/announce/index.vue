@@ -1,0 +1,464 @@
+<template>
+  <div class="announce-container">
+    <div class="title">
+      Anuncie o seu livro usado na WeShelf!
+    </div>
+
+    <div class="description">
+      Fique atento as informações obrigatórias e confirme os
+
+      <a class="description-link">
+        termos de publicação de livros aqui
+      </a>
+    </div>
+
+    <div class="form">
+      <div class="form-part-1">
+        <div class="big-image-container">
+          <label class="big-image-label">
+            <div class="big-image">
+              <input type="file" hidden />
+              <div class="icon-container">
+                <img :src="addImageIcon" />
+                <span>
+                  Adicione até 5 imagens
+                </span>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div class="small-image-container">
+          <label>
+            <div class="small-image">
+              <input type="file" hidden />
+              <img class="small-img" :src="addImageIcon" />
+            </div>
+          </label>
+
+          <label>
+            <div class="small-image">
+              <input type="file" hidden />
+              <img class="small-img" :src="addImageIcon" />
+            </div>
+          </label>
+        </div>
+
+        <div class="small-image-container">
+          <label>
+            <div class="small-image">
+              <input type="file" hidden />
+              <img class="small-img" :src="addImageIcon" />
+            </div>
+          </label>
+
+          <label>
+            <div class="small-image">
+              <input type="file" hidden />
+              <img class="small-img" :src="addImageIcon" />
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-part-2">
+        <InputText
+          id="tituloAnuncio"
+          label="TÍTULO DO ANÚNCIO"
+          placeholder="utilize palavras chaves, como o nome do livro e suas principais características"
+          required
+          :value="titulo_anuncio"
+          @model="titulo_anuncio = $event"
+        />
+
+        <div class="checkbox-container">
+          <InputNumber
+            id="precoAnuncio"
+            label="PREÇO"
+            class="price-input"
+            required
+            :value="price_anuncio"
+            @model="price_anuncio = $event"
+          />
+
+          <label class="checkbox-label">
+            <input type="checkbox" />
+            <span class="checkbox-text">
+              O livro é para doação?
+            </span>
+          </label>
+        </div>
+
+        <InputText
+          id="tituloLivro"
+          label="TÍTULO ORIGINAL DO LIVRO"
+          placeholder="igualzinho na capa ou na ficha catalográfica ;)"
+          required
+          :value="titulo_do_livro"
+          @model="titulo_do_livro = $event"
+        />
+
+        <div class="book-container">
+          <InputText
+            id="editoraLivro"
+            label="EDITORA"
+            placeholder="essa aqui você acha na capa ou na lateral"
+            required
+            :value="editora"
+            @model="editora = $event"
+          />
+
+          <InputSelect
+            id="generoLivro"
+            label="GÊNERO"
+            default_label="selecione..."
+            required
+            :options="getBookGenderOptions"
+            @model="genero = $event"
+          />
+        </div>
+
+        <div class="checkbox-container">
+          <InputSelect
+            id="conservacaoLivro"
+            label="ESTADO DE CONSERVAÇÃO DO LIVRO"
+            default_label="selecione..."
+            required
+            :options="getBookConservationOptions"
+            @model="conservacao = $event"
+          />
+
+          <label class="rarity checkbox-label">
+            <input type="checkbox" />
+            <span class="checkbox-text rarity-container">
+              Esse livro é uma raridade?
+
+              <img class="info-icon" :src="infoIcon" />
+            </span>
+          </label>
+        </div>
+
+        <div class="description-container">
+          <InputTextArea
+            id="descricaoLivro"
+            label="DESCRIÇÃO"
+            placeholder="faça a publi do livro aqui, se você quiser, mas não esqueça de adicionar detalhes sobre as condições dele, por exemplo, se o livro possui amassados ou alguma folha rasgadinha..."
+            required
+            :value="descricao"
+            @model="descricao = $event"
+          />
+
+          <span>
+            máx. 400 carateres
+          </span>
+        </div>
+
+        <label class=checkbox-label>
+          <input type="checkbox" />
+          <span class="checkbox-text">
+            Aceita trocas?
+          </span>
+        </label>
+
+        <hr />
+
+        <span class="advanced-options-title">
+          INFORMAÇÔES AVANÇADAS
+
+          <img class="info-icon" :src="infoIcon" />
+        </span>
+
+        <div class="book-container">
+          <InputText
+            id="isbnLivro"
+            label="ISBN-13"
+            required
+            :value="isbn"
+            @model="isbn = $event"
+          />
+
+          <InputText
+            id="edicaoLivro"
+            label="EDIÇÃO"
+            required
+            :value="edicao"
+            @model="edicao = $event"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  import InputText from '../../components/inputs/InputText.vue';
+  import InputNumber from '../../components/inputs/InputNumber.vue';
+  import InputTextArea from '../../components/inputs/InputTextArea.vue';
+  import InputSelect from '../../components/inputs/InputSelect.vue';
+
+  import infoIcon from '../../static/announce/info.png';
+  import addImageIcon from '../../static/announce/add-image.png';
+
+  export default {
+    name: 'AnnouncePage',
+    components: {
+      InputText,
+      InputNumber,
+      InputTextArea,
+      InputSelect,
+    },
+
+    data() {
+      return {
+        titulo_anuncio: '',
+        price_anuncio: 0,
+        titulo_do_livro: '',
+        genero: '',
+        editora: '',
+        conservacao: '',
+        descricao: '',
+        edicao: '',
+        isbn: '',
+        infoIcon,
+        addImageIcon,
+      }
+    },
+
+    computed: {
+      getBookGenderOptions() {
+        return [
+          {
+            label: 'Ação',
+            value: 'action',
+          },
+          {
+            label: 'Autoajuda',
+            value: 'selfhelp',
+          },
+          {
+            label: 'Distopia',
+            value: 'dystopia',
+          },
+          {
+            label: 'Fantasia',
+            value: 'fantasy',
+          },
+          {
+            label: 'Ficção',
+            value: 'fiction',
+          },
+          {
+            label: 'Horror',
+            value: 'horror',
+          },
+          {
+            label: 'infantil',
+            value: 'childish',
+          },
+          {
+            label: 'Jovem adulto',
+            value: 'newadult',
+          },
+          {
+            label: 'Policial',
+            value: 'police',
+          },
+          {
+            label: 'Romance',
+            value: 'romance',
+          },
+          {
+            label: 'Suspense',
+            value: 'thriller',
+          },
+        ];
+      },
+
+      getBookConservationOptions() {
+        return [
+          {
+            value: 'great',
+            label: 'Ótimo, nenhum defeito',
+          },
+
+          {
+            value: 'good',
+            label: 'Bom, poucos amassados',
+          },
+
+          {
+            value: 'medium',
+            label: 'Alguns amassados',
+          },
+
+          {
+            value: 'bad',
+            label: 'Um pouco acabado',
+          },
+
+          {
+            value: 'horrible',
+            label: 'Muito acabado',
+          },
+        ];
+      },
+    },
+  }
+</script>
+
+<style scoped lang="scss">
+  .announce-container {
+    padding: 60px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    .title {
+      font-size: 45px;
+      line-height: 54px;
+      font-weight: bold;
+      color: $primary-yellow;
+    }
+
+    .description {
+      font-size: 14px;
+      line-height: 17px;
+      margin-top: 8px;
+
+      &-link {
+        color: $orange;
+        cursor: pointer;
+      }
+    }
+
+    .form {
+      display: flex;
+      width: 100%;
+      padding: 0 10%;
+      margin-top: 40px;
+
+      &-part-1 { margin-right: 24px; }
+      &-part-2 { flex-grow: 1; }
+
+      .checkbox-container {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+        .price-input { width: 150px;}
+      }
+
+      .rarity { width: 100%; }
+      .advanced-options-title {
+        font-size: 14px;
+        line-height: 17px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+
+        img {
+          margin-left: 4px;
+          cursor: pointer;
+        }
+      }
+    }
+
+    .book-container {
+      display: flex;
+      gap: 12px;
+    }
+
+    .checkbox-label {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .checkbox-text {
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .description-container, .rarity-container {
+      position: relative;
+
+      span {
+        position: absolute;
+        right: 0;
+        bottom: -16px;
+        font-size: 9px;
+        font-weight: bold;
+        line-height: 11px;
+      }
+    }
+  }
+
+  .info-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .big-image-label {
+    margin-bottom: 0px;
+
+    .big-image {
+      width: 300px;
+      height: 300px;
+      background-color: #F7F7F7;
+      border-radius: 5px;
+      border: dashed 2px #D9D9D9;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .icon-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+
+        img {
+          height: 42px;
+          width: 42px;
+        }
+
+        span {
+          font-size: 14px;
+          line-height: 17px;
+          color: #AFAFAF;
+          max-width: 84px;
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  .big-image-container {
+    display: flex;
+    margin-bottom: 10px;
+  }
+
+  .small-image-container {
+    display: flex;
+    gap: 10px;
+    .small-image {
+      height: 145px;
+      width: 145px;
+      background-color: #F7F7F7;
+      border: dashed 2px #D9D9D9;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .small-img {
+        width: 35px;
+        height: 35px;
+      }
+    }
+  }
+</style>

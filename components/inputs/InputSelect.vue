@@ -8,22 +8,38 @@
       </span>
     </label>
 
-    <input
+    <select
       :id="id"
-      :value="value"
-      :placeholder="placeholder"
-      spellcheck="false"
-      :type="type"
+      placeholder="selecione..."
+      @input="$emit('input')"
       @change="$emit('model', $event.target.value)"
       @blur="$emit('blur')"
-      @input="$emit('input')"
-    />
+    >
+      <option
+        value=""
+        :disabled="default_disabled"
+        selected
+        hidden
+      >
+        <span class="placeholder">
+          {{ default_label }}
+        </span>
+      </option>
+
+      <option
+          v-for="option in options"
+          :key="option.value"
+          :value="option.value"
+        >
+          {{ option.label }}
+        </option>
+    </select>
   </div>
 </template>
 
 <script>
   export default {
-    name: 'InputText',
+    name: 'InputSelect',
     props: {
       id: {
         type: String,
@@ -35,24 +51,24 @@
         required: true,
       },
 
-      value: {
-        type: String,
-        required: true,
-      },
-
-      placeholder: {
+      default_label: {
         type: String,
         default: '',
       },
 
-      type: {
-        type: String,
-        default: 'text',
+      default_disabled: {
+        type: Boolean,
+        default: true,
       },
 
       required: {
         type: Boolean,
         default: false,
+      },
+
+      options: {
+        type: Array,
+        required: true,
       },
     },
   }
@@ -76,7 +92,7 @@
     .required-icon { color: $dark-orange; }
   }
 
-  input {
+  select {
     height: 38px;
     color: $black;
     outline: 0;
@@ -89,12 +105,12 @@
     font-size: 12px;
   }
 
-  input:focus {
+  select:focus {
     border-color: $primary-orange;
     outline: 1px normal #000
   }
 
-  ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  .placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
     color: #D6D6D6;
     opacity: 1; /* Firefox */
   }
