@@ -1,6 +1,6 @@
 <template>
   <div class="input-container">
-    <label :for="id">
+    <label v-if="label" :for="id">
       {{ label }}
 
       <span v-if="required" class="required-icon">
@@ -11,15 +11,17 @@
     <select
       :id="id"
       placeholder="selecione..."
+      :class="getColorStyle"
       @input="$emit('input')"
       @change="$emit('model', $event.target.value)"
       @blur="$emit('blur')"
     >
       <option
+        v-if="has_default"
         value=""
         :disabled="default_disabled"
+        :hidden="default_hidden"
         selected
-        hidden
       >
         <span class="placeholder">
           {{ default_label }}
@@ -48,7 +50,7 @@
 
       label: {
         type: String,
-        required: true,
+        default: '',
       },
 
       default_label: {
@@ -57,6 +59,11 @@
       },
 
       default_disabled: {
+        type: Boolean,
+        default: true,
+      },
+
+      default_hidden: {
         type: Boolean,
         default: true,
       },
@@ -70,6 +77,32 @@
         type: Array,
         required: true,
       },
+
+      has_default: {
+        type: Boolean,
+        default: true,
+      },
+
+      color: {
+        type: String,
+        default: '',
+      },
+    },
+
+    computed: {
+      getColorStyle() {
+        if (this.color) {
+          if (this.color === 'clean_red') {
+            return 'clean_red_input';
+          }
+
+          if (this.color === 'transparent') {
+            return 'transparent_input';
+          }
+        }
+
+        return '';
+      },
     },
   }
 </script>
@@ -79,7 +112,6 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-bottom: 1rem;
   }
 
   label {
@@ -100,9 +132,10 @@
     border-width: 1px;
     border-style: solid;
     border-color: $light-grey;
-    transition: all .3s;
+    transition: all .1  s;
     padding: 0px .5rem;
     font-size: 12px;
+    cursor: pointer;
   }
 
   select:focus {
@@ -113,5 +146,26 @@
   .placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
     color: #D6D6D6;
     opacity: 1; /* Firefox */
+  }
+
+  .transparent_input {
+    border-color: transparent !important;
+    font-weight: bold;
+  }
+
+  .clean_red_input {
+    border-color: $clean-red;
+    color: $clean-red;
+    font-weight: bold;
+
+    &:hover {
+      color: $white;
+      background-color: $clean-red;
+    }
+
+    option {
+      color: $black;
+      background-color: $white;
+    }
   }
 </style>

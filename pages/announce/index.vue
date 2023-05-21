@@ -112,6 +112,7 @@
             id="generoLivro"
             label="GÊNERO"
             default_label="selecione..."
+            class="mb-3"
             required
             :options="getBookGenderOptions"
             @model="genero = $event"
@@ -122,6 +123,7 @@
           <InputSelect
             id="conservacaoLivro"
             label="ESTADO DE CONSERVAÇÃO DO LIVRO"
+            class="mb-3"
             default_label="selecione..."
             required
             :options="getBookConservationOptions"

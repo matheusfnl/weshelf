@@ -30,6 +30,7 @@
                       ref="searchInput"
                       v-model="search_value"
                       type="text"
+                      @keyup.enter="searchValue"
                     />
                   </div>
                 </transition>
@@ -38,6 +39,7 @@
                   src="../static/header/search-icon.svg"
                   class="search-icon"
                   :class="{'sm-icon' : should_show_search_bar}"
+                  @click="searchValueOnClick"
                 />
               </label>
             </div>
@@ -112,6 +114,22 @@
       closeSearchBar() {
         if (this.should_show_search_bar) {
           this.should_show_search_bar = false;
+        }
+      },
+
+      searchValue() {
+        this.$router.push({
+          path: '/search',
+          query: { q: this.search_value },
+        })
+      },
+
+      searchValueOnClick() {
+        if (this.should_show_search_bar) {
+          this.$router.push({
+            path: '/search',
+            query: { q: this.search_value },
+          })
         }
       },
     },
@@ -197,6 +215,7 @@
       border: 0px;
       background-color: transparent;
       height: 100%;
+      width: 340px;
       padding-left: 8px;
 
       &:focus { outline: 0 }
@@ -208,10 +227,10 @@
   .input-field-leave-active { animation: expand-leave 0.2s ease-in forwards; }
   @keyframes expand-enter {
     from { width: 0; opacity: 0; }
-    to { width: 264px; opacity: 1; }
+    to { width: 340px; opacity: 1; }
   }
   @keyframes expand-leave {
-    from { width: 264px; opacity: 1; }
+    from { width: 340px; opacity: 1; }
     to { width: 0; opacity: 0; }
   }
   .input-field-enter-active input { opacity: 0; }
