@@ -72,6 +72,10 @@
           return 'btn-white';
         }
 
+        if (this.color === 'orange') {
+          return 'btn-orange';
+        }
+
         return '';
       },
 
@@ -86,6 +90,10 @@
 
         if (this.text_color === 'primary') {
           return 'btn-text-primary';
+        }
+
+        if (this.text_color === 'orange') {
+          return 'btn-text-orange';
         }
 
         return '';
@@ -130,6 +138,20 @@
       }
     }
 
+    &-orange {
+      background-color: $orange;
+      &:hover { background: darken($orange, 5%) }
+      &:focus { box-shadow: 0 0 0 0.2rem rgba($orange, 0.5); }
+      &:active {
+        background-color: $orange !important;
+        &:focus { box-shadow: 0 0 0 0.2rem rgba($orange, 0.5) !important; }
+      }
+      &:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba($orange, 0.5);
+      }
+    }
+
     // White
     &-white {
       background-color: $white;
@@ -165,6 +187,7 @@
       // Primary
       &-primary { color: $primary-orange; }
       &-primary-yellow { color: $primary-yellow; }
+      &-orange { color: $orange; }
     }
   }
 </style>

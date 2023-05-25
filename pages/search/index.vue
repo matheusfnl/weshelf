@@ -87,6 +87,7 @@
         v-for="(item, index) in catalog_items"
         :key="index"
         class="item-container"
+        @click="getProductPageRoute(item)"
       >
         <div
           :style="{ backgroundImage: `url(${item.image})` }"
@@ -524,15 +525,16 @@
 
         return percentageDiscount.toFixed(2);
       },
+
+      getProductPageRoute(item) {
+        return this.$router.push({ path: `/product/${item.id}` })
+      },
     },
   }
 </script>
 
 <stytle scoped lang=scss>
-  .default-container {
-    padding: 60px 100px;
-  }
-
+  .default-container { padding: 60px 100px; }
   .search-container {
     display: flex;
     align-items: center;
