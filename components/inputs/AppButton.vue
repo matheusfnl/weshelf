@@ -35,6 +35,11 @@
         default: 'primary',
       },
 
+      border_color: {
+        type: String,
+        default: '',
+      },
+
       rounded: {
         type: Boolean,
         default: true,
@@ -84,7 +89,7 @@
           return 'btn-text-white';
         }
 
-        if (this.color === 'primary-yellow') {
+        if (this.text_color === 'primary-yellow') {
           return 'btn-text-primary-yellow';
         }
 
