@@ -1,247 +1,308 @@
 <template>
-  <div class="default-container">
-    <div class="images-container">
-      <div
-        class="image-preview-backdrop"
-        :style="{ backgroundImage: `url(${getSelectedImage})` }"
-      >
+  <div>
+    <div class="default-container">
+      <div class="images-container">
         <div
+          class="image-preview-backdrop"
           :style="{ backgroundImage: `url(${getSelectedImage})` }"
-          class="actual-image"
-        />
-      </div>
-
-      <div class="image-group-container">
-        <div
-          v-for="(image, index) in product.images"
-          :key="index"
-          class="image-group"
-          :style="{ backgroundImage: `url(${image})` }"
-          @click="setSelectedImage(index)"
-        />
-      </div>
-    </div>
-
-    <div class="info-container">
-      <div class="breadcrumb-container mb-4">
-        <router-link class="search-breadcrumb" to="/search">
-          busca
-        </router-link>
         >
-        <span>
-          {{ getBookTitle }}
-        </span>
-      </div>
+          <div
+            :style="{ backgroundImage: `url(${getSelectedImage})` }"
+            class="actual-image"
+          />
+        </div>
 
-      <div class="title-container mb-4">
-        <span class="title">
-          {{ getBookTitle }}
-        </span>
-
-        <div class="profile-container">
-          <div>
-            {{ getProfileName  }}
-          </div>
-          |
-          <div>
-            <router-link
-              :to="{ path: `/profile/${product.seller.id}`, query: { shelf: product.shelf.id } }"
-              class="link-style"
-            >
-              {{ getShelfName  }}
-            </router-link>
-          </div>
+        <div class="image-group-container">
+          <div
+            v-for="(image, index) in product.images"
+            :key="index"
+            class="image-group"
+            :style="{ backgroundImage: `url(${image})` }"
+            @click="setSelectedImage(index)"
+          />
         </div>
       </div>
 
-      <div class="price-container mb-4">
-        <span>
-          <span class="actual-price">
-            R$ {{ getProductPrice }}
+      <div class="info-container">
+        <div class="breadcrumb-container mb-4">
+          <router-link class="search-breadcrumb" to="/search">
+            busca
+          </router-link>
+          >
+          <span>
+            {{ getBookTitle }}
+          </span>
+        </div>
+
+        <div class="title-container mb-4">
+          <span class="title">
+            {{ getBookTitle }}
           </span>
 
-          <span class="old-price">
-            R$ {{ getProductOldPrice }}
+          <div class="profile-container">
+            <div>
+              {{ getProfileName  }}
+            </div>
+            |
+            <div>
+              <router-link
+                :to="{ path: `/profile/${product.seller.id}`, query: { shelf: product.shelf.id } }"
+                class="link-style"
+              >
+                {{ getShelfName  }}
+              </router-link>
+            </div>
+          </div>
+        </div>
+
+        <div class="price-container mb-4">
+          <span>
+            <span class="actual-price">
+              R$ {{ getProductPrice }}
+            </span>
+
+            <span class="old-price">
+              R$ {{ getProductOldPrice }}
+            </span>
           </span>
-        </span>
-      </div>
+        </div>
 
-      <div class="get-container mb-4">
-        <Appbutton
-          color="primary-yellow"
-          class="w-100"
-          bold
-        >
-          eu quero comprar
-        </Appbutton>
+        <div class="get-container mb-4">
+          <Appbutton
+            color="primary-yellow"
+            class="w-100"
+            bold
+          >
+            eu quero comprar
+          </Appbutton>
 
-        <Appbutton
-          bold
-          color="orange"
-          class="w-100"
-        >
-          eu vim barganhar
-        </Appbutton>
+          <Appbutton
+            bold
+            color="orange"
+            class="w-100"
+            @click="barganharClick"
+          >
+            eu vim barganhar
+          </Appbutton>
 
-        <Appbutton
-          bold
-          color="orange"
-        >
-          <img class="wishlist-icon" :src="wishlistIcon" />
-        </Appbutton>
-      </div>
+          <Appbutton
+            bold
+            color="orange"
+          >
+            <img class="wishlist-icon" :src="wishlistIcon" />
+          </Appbutton>
+        </div>
 
-      <div class="original-description-container mb-4">
-        <div class="top-part description-part">
+        <div class="original-description-container mb-4">
+          <div class="top-part description-part">
+            <div class="title">
+              TÍTULO ORIGINAL
+            </div>
+
+            <span>
+              Duna
+            </span>
+          </div>
+
+          <hr />
+
+          <div class="bottom-part">
+            <div class="container-part">
+              <div class="top-part description-part">
+                <div class="title">
+                  CONDIÇÃO
+                </div>
+
+                <span>
+                  Quase Novo
+                </span>
+              </div>
+            </div>
+
+            <div class="vertical-hr" />
+
+            <div class="container-part">
+              <div class="top-part description-part">
+                <div class="title">
+                  EDITORA
+                </div>
+
+                <span>
+                  Aleph
+                </span>
+              </div>
+            </div>
+
+            <div class="vertical-hr" />
+
+            <div class="container-part">
+              <div class="top-part description-part">
+                <div class="title">
+                  LOCALIZAÇÃO
+                </div>
+
+                <span>
+                  Curitiba PR
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="description-container mb-4">
           <div class="title">
-            TÍTULO ORIGINAL
+            DESCRIÇÃO
           </div>
 
           <span>
-            Duna
+            primeiro volume da série Duna, capa dura e em ótimo estado. lido só uma vez, tem um pequeno amassado na lombada, em baixo.  aceito troca pelo segundo volume somente.
           </span>
         </div>
 
         <hr />
 
-        <div class="bottom-part">
-          <div class="container-part">
-            <div class="top-part description-part">
-              <div class="title">
-                CONDIÇÃO
-              </div>
+        <div class="security-container mb-4">
+          <img class="icon-size mr-1" :src="securityIcon" />
 
-              <span>
-                Quase Novo
-              </span>
-            </div>
-          </div>
+          <span>
+            Sua compra no ambiente WeShelf é segura. Nunca realize transações fora dos meios oficiais.
 
-          <div class="vertical-hr" />
-
-          <div class="container-part">
-            <div class="top-part description-part">
-              <div class="title">
-                EDITORA
-              </div>
-
-              <span>
-                Aleph
-              </span>
-            </div>
-          </div>
-
-          <div class="vertical-hr" />
-
-          <div class="container-part">
-            <div class="top-part description-part">
-              <div class="title">
-                LOCALIZAÇÃO
-              </div>
-
-              <span>
-                Curitiba PR
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="description-container mb-4">
-        <div class="title">
-          DESCRIÇÃO
+            <a href="#" class="security-link">
+              Confira mais dicas de segurança.
+            </a>
+          </span>
         </div>
 
-        <span>
-          primeiro volume da série Duna, capa dura e em ótimo estado. lido só uma vez, tem um pequeno amassado na lombada, em baixo.  aceito troca pelo segundo volume somente.
-        </span>
-      </div>
+        <div class="user-container">
+          <div
+            class="profile-part"
+            @click="getUserProfileRoute"
+          >
+            <div class="user-icon" />
 
-      <hr />
+            <div class="user-info">
+              <span class="label">
+                PUBLICADOR
+              </span>
 
-      <div class="security-container mb-4">
-        <img class="icon-size mr-1" :src="securityIcon" />
-
-        <span>
-          Sua compra no ambiente WeShelf é segura. Nunca realize transações fora dos meios oficiais.
-
-          <a href="#" class="security-link">
-            Confira mais dicas de segurança.
-          </a>
-        </span>
-      </div>
-
-      <div class="user-container">
-        <div
-          class="profile-part"
-          @click="getUserProfileRoute"
-        >
-          <div class="user-icon" />
-
-          <div class="user-info">
-            <span class="label">
-              PUBLICADOR
-            </span>
-
-            <span class="name">
-              {{ getProfileName }}
-            </span>
-          </div>
-        </div>
-
-        <hr />
-
-        <div class="info-part">
-          <div class="container-part">
-            <div class="rating-container item description-part">
-              <div class="stars">
-                * * * * *
-              </div>
-
-              <span class="rating-quantity">
-                6 avaliações
+              <span class="name">
+                {{ getProfileName }}
               </span>
             </div>
           </div>
 
-          <div class="container-part">
-            <div class="item description-part">
-              <div class="title">
-                ANUNCIADOS
-              </div>
+          <hr />
 
-              <span>
-                16
-              </span>
+          <div class="info-part">
+            <div class="container-part">
+              <div class="rating-container item description-part">
+                <div class="stars">
+                  * * * * *
+                </div>
+
+                <span class="rating-quantity">
+                  6 avaliações
+                </span>
+              </div>
             </div>
-          </div>
 
-          <div class="container-part">
-            <div class="item description-part">
-              <div class="title">
-                VENDIDOS
+            <div class="container-part">
+              <div class="item description-part">
+                <div class="title">
+                  ANUNCIADOS
+                </div>
+
+                <span>
+                  16
+                </span>
               </div>
-
-              <span>
-                7
-              </span>
             </div>
-          </div>
 
-          <div class="container-part">
-            <div class="item description-part">
-              <div class="title">
-                BOOKER DESDE
+            <div class="container-part">
+              <div class="item description-part">
+                <div class="title">
+                  VENDIDOS
+                </div>
+
+                <span>
+                  7
+                </span>
               </div>
+            </div>
 
-              <span>
-                nov/2022
-              </span>
+            <div class="container-part">
+              <div class="item description-part">
+                <div class="title">
+                  BOOKER DESDE
+                </div>
+
+                <span>
+                  nov/2022
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <transition name="modal">
+      <div v-if="should_show_modal" class="barganhar-modal">
+        <div class="backdrop" @click="closeModal" />
+
+        <div class="content">
+          <p class="title">
+            alô... chefe, ele escolheu barganhar!
+          </p>
+
+          <p class="subtitle">
+            Escolha um livro para oferecer em troca por
+
+            <span>
+              {{ getBookTitle }}
+            </span>
+          </p>
+
+          <p class="warning">
+            <span>
+              ATENÇÃO!
+            </span>
+
+            Você só pode escolher um livro já publicado para oferecer
+          </p>
+
+          <div class="products-container">
+            <div
+              v-for="(seller_product, index) in product.seller.products"
+              :key="index"
+              class="item-to-select"
+              :class="{ 'selected' : selected_items.includes(index) }"
+              :style="{ backgroundImage: `url(${seller_product.image})` }"
+              @click="setItemSelected(index)"
+            />
+          </div>
+
+          <p class="subtitle">
+            Escolha um livro para oferecer em troca por
+
+            <span>
+              {{ getProfileName }}
+            </span>
+          </p>
+
+          <p class="info">
+            Você receberá uma resposta em até 4 dias.
+          </p>
+
+          <InputTextArea
+            id="textArea"
+            placeholder="opcional, mas aqui você pode explicar melhor a sua oferta :)"
+            :value="barganha_text"
+            @model="barganha_text = $event"
+          />
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -253,13 +314,18 @@
   import example5 from '../../static/product/example5.png';
 
   import Appbutton from '../../components/inputs/AppButton.vue'
+  import InputTextArea from '../../components/inputs/InputTextArea.vue'
 
   import wishlistIcon from '../../static/utils/wishlist.png';
   import securityIcon from '../../static/utils/security.png';
 
   export default {
     name: 'ProductPage',
-    components: { Appbutton },
+    components: {
+      Appbutton,
+      InputTextArea,
+    },
+
     data() {
       return {
         product: {
@@ -280,6 +346,24 @@
           seller: {
             name: 'Matheus Gabriel',
             id: 1321,
+            products: [
+              {
+                id: 1,
+                image: example1,
+              },
+              {
+                id: 2,
+                image: example1,
+              },
+              {
+                id: 3,
+                image: example1,
+              },
+              {
+                id: 4,
+                image: example1,
+              },
+            ],
           },
           shelf: {
             name: 'Minha primeira prateleira',
@@ -300,6 +384,9 @@
         wishlistIcon,
         securityIcon,
         selected_image: 0,
+        should_show_modal: false,
+        barganha_text: '',
+        selected_items: [],
       }
     },
 
@@ -339,6 +426,24 @@
 
       setSelectedImage(index) {
         this.selected_image = index;
+      },
+
+      barganharClick() {
+        this.should_show_modal = true;
+      },
+
+      closeModal() {
+        this.should_show_modal = false;
+      },
+
+      setItemSelected(index) {
+        if (this.selected_items.includes(index)) {
+          const itemIndex = this.selected_items.indexOf(index);
+
+          return this.selected_items.splice(itemIndex, 1);
+        }
+
+        return this.selected_items.push(index);
       },
     },
   }
@@ -581,4 +686,92 @@
       }
     }
   }
+
+  .barganhar-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .backdrop {
+      width: inherit;
+      height: inherit;
+      background-color: $lighter-grey;
+      opacity: .6;
+      filter: blur(8px);
+      -webkit-filter: blur(8px);
+    }
+
+    .content {
+      margin-top: 100px;
+      position: absolute;
+      width: 800px;
+      background-color: $white;
+      border-radius: 8px;
+      box-shadow: 0px 0px 5px 1px rgba($black, .16);
+      padding: 32px 64px;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+
+      .title {
+        color: $primary-orange;
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        span { font-weight: bold; }
+        margin-bottom: 0.25rem;
+      }
+
+      .warning {
+        font-size: 12px;
+        color: #5A5A5A;
+
+        span { font-weight: bold; }
+      }
+
+      .info {
+        color: #5A5A5A;
+        font-size: 12px;
+      }
+    }
+  }
+
+  .products-container {
+    display: flex;
+    max-width: 100%;
+    gap: 10px;
+    height: 180px;
+    padding: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+
+    .item-to-select {
+      min-width: 121px;
+      min-height: 145px;
+      background-position: center;
+      background-size: cover;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.25);
+
+      &.selected {
+        border: 3px solid $primary-orange;
+      }
+    }
+  }
+
+  .modal-enter-active,
+  .modal-leave-active { transition: opacity 0.1s; }
+  .modal-enter,
+  .modal-leave-to { opacity: 0; }
 </style>

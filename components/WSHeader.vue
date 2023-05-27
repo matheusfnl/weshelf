@@ -155,6 +155,7 @@
     justify-content: center;
     padding: 0px 52px;
     z-index: 1000;
+    position: relative;
 
     .header-max-width {
       max-width: 1920px;
