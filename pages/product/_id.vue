@@ -72,6 +72,7 @@
             color="primary-yellow"
             class="w-100"
             bold
+            @click="getPurchaseRoute"
           >
             eu quero comprar
           </Appbutton>
@@ -444,6 +445,12 @@
         }
 
         return this.selected_items.push(index);
+      },
+
+      getPurchaseRoute() {
+        this.$router.push({
+          path: '/purchase',
+        })
       },
     },
   }
