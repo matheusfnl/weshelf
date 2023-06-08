@@ -92,10 +92,14 @@
     methods: {
       ...mapActions(['loginUser']),
       async loginUserData() {
-        await this.loginUser({
+        const error = await this.loginUser({
           email: this.email,
           password: this.password,
         });
+
+        if (! error) {
+          this.$router.push({ path: '/' })
+        }
       },
     },
   }

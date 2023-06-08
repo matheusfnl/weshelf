@@ -17,11 +17,11 @@
     mounted() {
       const user = JSON.parse(localStorage.getItem('sb-ybhmnejynxteqinaedha-auth-token'));
 
-      this.setUser(user);
+      this.setAuthentication(user);
     },
 
     methods: {
-      ...mapActions(['setUser']),
+      ...mapActions(['setAuthentication']),
     },
   }
 </script>

@@ -78,53 +78,47 @@
       <hr class="mb-0 pb-0" />
 
       <span class="items-quantity-text">
-        {{ getItemsQuantity }} resultados encontrados
+        {{ getCatalogoProdutos.length || 0 }} resultados encontrados
       </span>
     </div>
 
-    <div class="result-container">
+    <div v-if="getCatalogoProdutos.length" class="result-container">
       <div
-        v-for="(item, index) in catalog_items"
+        v-for="(item, index) in getCatalogoProdutos"
         :key="index"
         class="item-container"
         @click="getProductPageRoute(item)"
       >
         <div
-          :style="{ backgroundImage: `url(${item.image})` }"
+          :style="getProductImage(item)"
           class="item-image"
         />
 
         <span class="item-title">
-          {{  item.title  }}
+          {{  item.titulo  }}
         </span>
 
         <span class="item-price">
-          R$ {{  item.price.actual  }}
+          R$ {{  item.preco  }}
 
-          <span class="old-price">
-            R$ {{  item.price.old  }}
+          <span v-if="item.old_preco" class="old-price">
+            R$ {{  item.old_preco  }}
           </span>
         </span>
 
         <div class="discount-badge-container">
-          <div v-if="itemHasDiscount(item.price)" class="discount-badge">
-            {{ getDiscountValue(item.price) }}% OFF
+          <div v-if="itemHasDiscount(item)" class="discount-badge">
+            {{ getDiscountValue(item) }}% OFF
           </div>
         </div>
 
         <div class="badge-container">
-          <div
-            v-for="(badge, index_badge) in item.badges"
-            :key="`badge-${index_badge}`"
-            class="item-badge"
-          >
-            <template v-if="badge.type === 'quality'">
-              {{ badge.value }}
-            </template>
+          <div class="item-badge">
+            {{ item.estado }}
+          </div>
 
-            <template v-else-if="badge.type === 'trade'">
-              TRADE
-            </template>
+          <div v-if="item.trocas" class="item-badge">
+            TRADE
           </div>
         </div>
       </div>
@@ -133,6 +127,8 @@
 </template>
 
 <script>
+  import { mapGetters, mapActions } from 'vuex';
+
   import InputSelect from '../../components/inputs/InputSelect.vue';
   import bookImage from '../../static/search/book-example.png';
 
@@ -149,7 +145,7 @@
         gender: '',
         editor: '',
         region: '',
-        rarity: '',
+        rarity: false,
         catalog_items: [
           {
             id: 1,
@@ -365,6 +361,7 @@
     },
 
     computed: {
+      ...mapGetters(['getCatalogoProdutos']),
       getConditionOptions() {
         return [
           {
@@ -464,8 +461,12 @@
       getRarityOptions() {
         return [
           {
-            label: 'Adicionar depois',
-            value: 'aa',
+            label: 'Sim',
+            value: true,
+          },
+          {
+            label: 'Não',
+            value: false,
           },
         ]
       },
@@ -506,28 +507,42 @@
       },
     },
 
-    mounted() {
+    async mounted() {
       this.search_value = this.getRouteQuerySearch;
+
+      await this.fetchProdutos({
+        search: this.search_value,
+        estado: this.condition,
+        genero: this.gender,
+        rarity: this.rarity,
+      })
     },
 
     methods: {
-      itemHasDiscount(price) {
-        if (parseInt(price.old) > parseInt(price.actual)) {
+      ...mapActions(['fetchProdutos']),
+      itemHasDiscount(item) {
+        if (parseInt(item.old_preco || 0) > parseInt(item.preco)) {
           return true;
         }
 
         return false;
       },
 
-      getDiscountValue(price) {
-        const discount = price.old - price.actual;
-        const percentageDiscount = (discount / price.old) * 100;
+      getDiscountValue(item) {
+        if (this.old_preco) {
+          const discount = item.old_preco - item.preco;
+          const percentageDiscount = (discount / item.old_preco) * 100;
 
-        return percentageDiscount.toFixed(2);
+          return percentageDiscount.toFixed(2);
+        }
       },
 
       getProductPageRoute(item) {
         return this.$router.push({ path: `/product/${item.id}` })
+      },
+
+      getProductImage(product) {
+        return { backgroundImage: `url(https://ybhmnejynxteqinaedha.supabase.co/storage/v1/object/public/images/${product.images[0]})` };
       },
     },
   }
@@ -559,7 +574,7 @@
 
   .result-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 10px;
 
     .item-container {

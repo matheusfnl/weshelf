@@ -260,6 +260,8 @@
 </template>
 
 <script>
+  import { mapActions } from 'vuex';
+
   import banner from '../../static/profile/banner.png';
   import example from '../../static/product/example1.jpg';
   import ratingStar from '../../static/utils/rating-star.png'
@@ -394,7 +396,15 @@
       },
     },
 
+    async mounted() {
+      await this.fetchUser(this.$route.params.id);
+    },
+
     methods: {
+      ...mapActions([
+        'fetchUser',
+      ]),
+
       getBarganhaStatus(index) {
         if (this.getBarganhas[index].status === 'pending') {
           return 'aguardando resposta'

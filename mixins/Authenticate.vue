@@ -2,9 +2,9 @@
   export default {
     name: 'MiddlewareAuthenticate',
     middleware({ store, redirect }) {
-      const { getters: { getUser } } = store;
+      const { getters: { getAuthentication } } = store;
 
-      if (! getUser?.user?.id) {
+      if (! getAuthentication?.user_id) {
         return redirect('/login')
       }
     },

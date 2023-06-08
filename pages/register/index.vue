@@ -29,11 +29,25 @@
       />
 
       <InputText
-        id="userPassword"
+        id="userConfirmPassword"
         label="Confirme a senha"
         type="password"
         :value="password_confirmation"
         @model="password_confirmation = $event"
+      />
+
+      <InputText
+        id="userName"
+        label="Nome do usuário"
+        :value="name"
+        @model="name = $event"
+      />
+
+      <InputText
+        id="userArroba"
+        label="Usuário"
+        :value="arroba"
+        @model="arroba = $event"
       />
 
       <AppButton
@@ -83,6 +97,8 @@
         email: '',
         password: '',
         password_confirmation: '',
+        name: '',
+        arroba: '',
       }
     },
 
@@ -96,10 +112,16 @@
       ...mapActions(['registerUser']),
       async registerNewUser() {
         if (this.password === this.password_confirmation) {
-          await this.registerUser({
+          const error = await this.registerUser({
             email: this.email,
             password: this.password,
+            name: this.name,
+            arroba: this.arroba,
           })
+
+          if (!error) {
+            this.$router.push({ path: '/' })
+          }
         }
       },
     },
@@ -117,7 +139,6 @@
 
   .auth-card {
     width: 450px;
-    max-height: 620px;
     background-color: white;
     border-radius: 20px;
     padding: 45px;

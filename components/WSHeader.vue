@@ -49,7 +49,13 @@
             </div>
 
             <div v-if="hasUser" class="options-icon upscale-animation">
-              <img src="../static/header/user-icon.svg" />
+              <b-dropdown size="lg"  variant="link" toggle-class="text-decoration-none" no-caret>
+                <template #button-content>
+                  <img src="../static/header/user-icon.svg" />
+                </template>
+                <b-dropdown-item @click="perfilRoute">Perfil</b-dropdown-item>
+                <b-dropdown-item @click="signOutUser">Sair</b-dropdown-item>
+              </b-dropdown>
             </div>
           </div>
 
@@ -77,7 +83,7 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapActions } from 'vuex';
 
   import AppButton from '../components/inputs/AppButton.vue';
   import '../directives/click-outside'
@@ -93,7 +99,7 @@
     },
 
     computed: {
-      ...mapGetters(['getUser']),
+      ...mapGetters(['getAuthentication']),
       shouldShowHeader() {
         return ! [
           'login',
@@ -103,11 +109,12 @@
       },
 
       hasUser() {
-        return this.getUser?.user?.id
+        return !! this.getAuthentication?.user_id
       },
     },
 
     methods: {
+      ...mapActions(['logoutUser']),
       publicarClick() {
         if (! this.hasUser) {
           return this.$router.push({ path: '/login' })
@@ -145,6 +152,20 @@
             path: '/search',
             query: { q: this.search_value },
           })
+        }
+      },
+
+      perfilRoute() {
+        return this.$router.push({
+          path: `/profile/${this.getAuthentication.arroba}`,
+        });
+      },
+
+      async signOutUser() {
+        const error = await this.logoutUser();
+
+        if (! error) {
+          this.$router.push({ path: '/login' })
         }
       },
     },

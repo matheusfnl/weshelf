@@ -14,51 +14,41 @@
 
     <div class="form">
       <div class="form-part-1">
-        <div class="big-image-container">
-          <label class="big-image-label">
-            <div class="big-image">
-              <input type="file" hidden />
+        <label class="big-image-label">
+          <div class="big-image-container">
+            <div class="big-image" :style="getUploadedImage(0)">
+              <input type="file" accept=".jpg, .jpeg, .png" hidden multiple @change="getUploadedImages" />
               <div class="icon-container">
-                <img :src="addImageIcon" />
-                <span>
-                  Adicione até 5 imagens
-                </span>
+                <template v-if="! uploaded_images[0]">
+                  <img :src="addImageIcon" />
+                  <span>
+                    Adicione até 5 imagens
+                  </span>
+                </template>
               </div>
             </div>
-          </label>
-        </div>
+          </div>
 
-        <div class="small-image-container">
-          <label>
-            <div class="small-image">
-              <input type="file" hidden />
-              <img class="small-img" :src="addImageIcon" />
+          <div class="small-image-container">
+            <div class="small-image" :style="getUploadedImage(1)">
+              <img v-if="! uploaded_images[1]" class="small-img" :src="addImageIcon" />
             </div>
-          </label>
 
-          <label>
-            <div class="small-image">
-              <input type="file" hidden />
-              <img class="small-img" :src="addImageIcon" />
+            <div class="small-image" :style="getUploadedImage(2)">
+              <img v-if="! uploaded_images[2]" class="small-img" :src="addImageIcon" />
             </div>
-          </label>
-        </div>
+          </div>
 
-        <div class="small-image-container">
-          <label>
-            <div class="small-image">
-              <input type="file" hidden />
-              <img class="small-img" :src="addImageIcon" />
+          <div class="small-image-container bottom-images">
+            <div class="small-image" :style="getUploadedImage(3)">
+              <img v-if="! uploaded_images[3]" class="small-img" :src="addImageIcon" />
             </div>
-          </label>
 
-          <label>
-            <div class="small-image">
-              <input type="file" hidden />
-              <img class="small-img" :src="addImageIcon" />
+            <div class="small-image" :style="getUploadedImage(4)">
+              <img v-if="! uploaded_images[4]" class="small-img" :src="addImageIcon" />
             </div>
-          </label>
-        </div>
+          </div>
+        </label>
       </div>
 
       <div class="form-part-2">
@@ -82,7 +72,7 @@
           />
 
           <label class="checkbox-label">
-            <input type="checkbox" />
+            <input v-model="doacao" type="checkbox" />
             <span class="checkbox-text">
               O livro é para doação?
             </span>
@@ -131,7 +121,7 @@
           />
 
           <label class="rarity checkbox-label">
-            <input type="checkbox" />
+            <input v-model="raridade" type="checkbox" />
             <span class="checkbox-text rarity-container">
               Esse livro é uma raridade?
 
@@ -156,36 +146,16 @@
         </div>
 
         <label class=checkbox-label>
-          <input type="checkbox" />
+          <input v-model=trocas type="checkbox" />
           <span class="checkbox-text">
             Aceita trocas?
           </span>
         </label>
 
-        <hr />
-
-        <span class="advanced-options-title">
-          INFORMAÇÔES AVANÇADAS
-
-          <img class="info-icon" :src="infoIcon" />
-        </span>
-
-        <div class="book-container">
-          <InputText
-            id="isbnLivro"
-            label="ISBN-13"
-            required
-            :value="isbn"
-            @model="isbn = $event"
-          />
-
-          <InputText
-            id="edicaoLivro"
-            label="EDIÇÃO"
-            required
-            :value="edicao"
-            @model="edicao = $event"
-          />
+        <div class="w-100 d-flex justify-content-end mt-4">
+          <AppButton bold @click="publicarClick">
+            PUBLICAR
+          </AppButton>
         </div>
       </div>
     </div>
@@ -193,10 +163,13 @@
 </template>
 
 <script>
+  import { mapActions, mapGetters } from 'vuex';
+
   import InputText from '../../components/inputs/InputText.vue';
   import InputNumber from '../../components/inputs/InputNumber.vue';
   import InputTextArea from '../../components/inputs/InputTextArea.vue';
   import InputSelect from '../../components/inputs/InputSelect.vue';
+  import AppButton from '../../components/inputs/AppButton.vue';
 
   import infoIcon from '../../static/announce/info.png';
   import addImageIcon from '../../static/announce/add-image.png';
@@ -208,6 +181,7 @@
       InputNumber,
       InputTextArea,
       InputSelect,
+      AppButton,
     },
 
     data() {
@@ -223,10 +197,16 @@
         isbn: '',
         infoIcon,
         addImageIcon,
+        uploaded_images: [],
+        trocas: false,
+        raridade: false,
+        doacao: false,
+        unformatted_images: [],
       }
     },
 
     computed: {
+      ...mapGetters(['getAuthentication']),
       getBookGenderOptions() {
         return [
           {
@@ -303,6 +283,58 @@
             label: 'Muito acabado',
           },
         ];
+      },
+    },
+
+    methods: {
+      ...mapActions(['createProduto']),
+      async publicarClick() {
+        const response = await this.createProduto({
+          userArroba: this.getAuthentication.arroba,
+          userId: this.getAuthentication.user_id,
+          titulo: this.titulo_anuncio,
+          preco: parseInt(this.price_anuncio),
+          livroNome: this.titulo_do_livro,
+          editora: this.editora,
+          trocas: this.trocas,
+          genero: this.genero,
+          doacao: this.doacao,
+          estado: this.conservacao,
+          raridade: this.raridade,
+          descricao: this.descricao,
+          images: this.unformatted_images,
+        })
+
+        console.log(response);
+
+        if (! response.error) {
+          this.$router.push({
+            path: `/product/${response.id}`,
+          })
+        }
+      },
+
+      getUploadedImage(index) {
+        if (this.uploaded_images[index]) {
+          return { backgroundImage: `url(${this.uploaded_images[index]})` }
+        }
+
+        return {}
+      },
+
+      getUploadedImages(event) {
+        const files = event.target.files;
+
+        this.uploaded_images = []
+
+        Array.from(files).forEach((image, index) => {
+          if (index < 5) {
+            const imageURL = URL.createObjectURL(image);
+
+            this.unformatted_images[index] = image
+            this.uploaded_images[index] = imageURL;
+          }
+        });
       },
     },
   }
@@ -414,6 +446,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      background-position: center;
+      background-size: cover;
 
       .icon-container {
         display: flex;
@@ -443,6 +477,8 @@
     margin-bottom: 10px;
   }
 
+  .bottom-images { margin-top: 10px; }
+
   .small-image-container {
     display: flex;
     gap: 10px;
@@ -456,6 +492,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      background-position: center;
+      background-size: cover;
 
       .small-img {
         width: 35px;

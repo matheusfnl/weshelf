@@ -395,7 +395,7 @@
     },
 
     computed: {
-      ...mapGetters(['getUser']),
+      ...mapGetters(['getAuthentication']),
       getBookTitle() {
         return this.product.title;
       },
@@ -434,7 +434,7 @@
       },
 
       barganharClick() {
-        if (! this.getUser?.user?.id) {
+        if (! this.getAuthentication?.user_id) {
           return this.$router.push({ path: '/login' })
         }
 
@@ -442,7 +442,7 @@
       },
 
       wishlistClick() {
-        if (! this.getUser?.user?.id) {
+        if (! this.getAuthentication?.user_id) {
           return this.$router.push({ path: '/login' })
         }
       },
