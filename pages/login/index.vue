@@ -31,7 +31,7 @@
       <AppButton
         :rounded="false"
         class="mt-4 w-100"
-        @click="loginUser"
+        @click="loginUserData"
       >
         ENTRAR
       </AppButton>
@@ -64,6 +64,8 @@
 </template>
 
 <script>
+  import { mapActions } from 'vuex';
+
   import InputText from '../../components/inputs/InputText.vue';
   import AppButton from '../../components/inputs/AppButton.vue';
 
@@ -88,8 +90,12 @@
     },
 
     methods: {
-      loginUser() {
-        return true;
+      ...mapActions(['loginUser']),
+      async loginUserData() {
+        await this.loginUser({
+          email: this.email,
+          password: this.password,
+        });
       },
     },
   }

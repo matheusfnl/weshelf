@@ -89,6 +89,7 @@
           <Appbutton
             bold
             color="orange"
+            @click="wishlistClick"
           >
             <img class="wishlist-icon" :src="wishlistIcon" />
           </Appbutton>
@@ -308,6 +309,8 @@
 </template>
 
 <script>
+  import { mapGetters } from 'vuex';
+
   import example1 from '../../static/product/example1.jpg';
   import example2 from '../../static/product/example2.png';
   import example3 from '../../static/product/example3.png';
@@ -392,6 +395,7 @@
     },
 
     computed: {
+      ...mapGetters(['getUser']),
       getBookTitle() {
         return this.product.title;
       },
@@ -430,7 +434,17 @@
       },
 
       barganharClick() {
+        if (! this.getUser?.user?.id) {
+          return this.$router.push({ path: '/login' })
+        }
+
         this.should_show_modal = true;
+      },
+
+      wishlistClick() {
+        if (! this.getUser?.user?.id) {
+          return this.$router.push({ path: '/login' })
+        }
       },
 
       closeModal() {

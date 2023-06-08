@@ -10,6 +10,21 @@
   </div>
 </template>
 
+<script>
+  import { mapActions } from 'vuex';
+
+  export default {
+    mounted() {
+      const user = JSON.parse(localStorage.getItem('sb-ybhmnejynxteqinaedha-auth-token'));
+
+      this.setUser(user);
+    },
+
+    methods: {
+      ...mapActions(['setUser']),
+    },
+  }
+</script>
 <style scoped lang=scss>
   .app {
     display: flex;

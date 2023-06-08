@@ -330,6 +330,8 @@
   import InputText from '../../components/inputs/InputText.vue';
   import AppButton from '../../components/inputs/AppButton.vue';
 
+  import Authenticate from '../../mixins/Authenticate.vue'
+
   import pixIcon from '../../static/utils/pix.png';
   import mercadoLivreIcon from '../../static/utils/mercadolivre.png';
   import boletoIcon from '../../static/utils/boleto.png';
@@ -342,6 +344,7 @@
       AppButton,
     },
 
+    mixins: [Authenticate],
     data() {
       return {
         email: '',

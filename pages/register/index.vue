@@ -39,7 +39,7 @@
       <AppButton
         :rounded="false"
         class="mt-4 w-100"
-        @click="registerUser"
+        @click="registerNewUser"
       >
         CADASTRAR
       </AppButton>
@@ -57,7 +57,6 @@
           :rounded="false"
           class="mt-4 w-100"
           color="primary-yellow"
-          @click="registerUser"
         >
           ENTRAR
         </AppButton>
@@ -67,6 +66,8 @@
 </template>
 
 <script>
+  import { mapActions } from 'vuex';
+
   import InputText from '../../components/inputs/InputText.vue';
   import AppButton from '../../components/inputs/AppButton.vue';
 
@@ -92,8 +93,14 @@
     },
 
     methods: {
-      registerUser() {
-        return true;
+      ...mapActions(['registerUser']),
+      async registerNewUser() {
+        if (this.password === this.password_confirmation) {
+          await this.registerUser({
+            email: this.email,
+            password: this.password,
+          })
+        }
       },
     },
   }

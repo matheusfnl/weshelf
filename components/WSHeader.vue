@@ -48,28 +48,28 @@
               <img src="../static/header/bag-icon.svg" />
             </div>
 
-            <div class="options-icon upscale-animation">
+            <div v-if="hasUser" class="options-icon upscale-animation">
               <img src="../static/header/user-icon.svg" />
             </div>
           </div>
 
-          <div class="vertical-line" />
+          <template v-if="! hasUser">
+            <div class="vertical-line" />
 
-          <NuxtLink to="/login">
-            <AppButton
-              color="white"
-              text_color="primary"
-              bold
-            >
-              ENTRAR
-            </AppButton>
-          </NuxtLink>
+            <NuxtLink to="/login">
+              <AppButton
+                color="white"
+                text_color="primary"
+                bold
+              >
+                ENTRAR
+              </AppButton>
+            </NuxtLink>
+          </template>
 
-          <NuxtLink to="/announce">
-            <AppButton bold>
-              PUBLICAR
-            </AppButton>
-          </NuxtLink>
+          <AppButton bold @click="publicarClick">
+            PUBLICAR
+          </AppButton>
         </div>
       </div>
     </div>
@@ -77,6 +77,8 @@
 </template>
 
 <script>
+  import { mapGetters } from 'vuex';
+
   import AppButton from '../components/inputs/AppButton.vue';
   import '../directives/click-outside'
 
@@ -91,6 +93,7 @@
     },
 
     computed: {
+      ...mapGetters(['getUser']),
       shouldShowHeader() {
         return ! [
           'login',
@@ -98,9 +101,21 @@
           'recover',
         ].includes(this.$route.name);
       },
+
+      hasUser() {
+        return this.getUser?.user?.id
+      },
     },
 
     methods: {
+      publicarClick() {
+        if (! this.hasUser) {
+          return this.$router.push({ path: '/login' })
+        }
+
+        this.$router.push({ path: '/announce'})
+      },
+
       showSearchBar() {
         if (! this.should_show_search_bar) {
           this.should_show_search_bar = true;
