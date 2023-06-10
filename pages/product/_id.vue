@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="default-container">
+    <div v-if="!request_pending" class="default-container">
       <div class="images-container">
         <div
           class="image-preview-backdrop"
@@ -262,6 +262,10 @@
       </div>
     </div>
 
+    <div v-else class="loader-container">
+      adsas
+    </div>
+
     <transition name="modal">
       <div v-if="should_show_modal" class="barganhar-modal">
         <div class="backdrop" @click="closeModal" />
@@ -346,6 +350,7 @@
         should_show_modal: false,
         barganha_text: '',
         selected_items: [],
+        request_pending: false,
       }
     },
 
@@ -371,7 +376,27 @@
       getBookCondicao() {
         const { estado = '' } = this.getProduto || {};
 
-        return estado;
+        if (estado === 'great') {
+          return 'Ótimo, nenhum defeito'
+        }
+
+        if (estado === 'good') {
+          return 'Bom, poucos amassados'
+        }
+
+        if (estado === 'medium') {
+          return 'Alguns amassados'
+        }
+
+        if (estado === 'bad') {
+          return 'Um pouco acabado'
+        }
+
+        if (estado === 'horrible') {
+          return 'Muito acabado'
+        }
+
+        return '';
       },
 
       getBookEditora() {
@@ -464,9 +489,13 @@
     },
 
     async mounted() {
+      this.request_pending = true;
+
       await this.fetchProduto({ id: this.$route.params.id })
 
       await this.fetchUser(this.getUserArroba)
+
+      this.request_pending = false;
     },
 
     methods: {
@@ -764,6 +793,13 @@
         }
       }
     }
+  }
+
+  .loader-container {
+    display: flex;
+    justify-content: center;
+    align-items:center;
+    height: 75vh;
   }
 
   .barganhar-modal {
