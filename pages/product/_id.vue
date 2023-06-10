@@ -14,10 +14,10 @@
 
         <div class="image-group-container">
           <div
-            v-for="(image, index) in product.images"
+            v-for="(image, index) in getProductImages"
             :key="index"
             class="image-group"
-            :style="{ backgroundImage: `url(${image})` }"
+            :style="{ backgroundImage: `url(${getImageUrl(image)})` }"
             @click="setSelectedImage(index)"
           />
         </div>
@@ -41,17 +41,31 @@
 
           <div class="profile-container">
             <div>
-              {{ getProfileName  }}
-            </div>
-            |
-            <div>
               <router-link
-                :to="{ path: `/profile/${product.seller.id}`, query: { shelf: product.shelf.id } }"
+                :to="{ path: `/profile/${getUserArroba}` }"
                 class="link-style"
               >
-                {{ getShelfName  }}
+                {{ getProfileName  }}
               </router-link>
             </div>
+
+              |
+              <div>
+                <template v-if="getShelfName">
+                  <router-link
+                    :to="{ path: `/profile/${product.seller.id}`, query: { shelf: product.shelf.id } }"
+                    class="link-style"
+                  >
+                    {{ getShelfName  }}
+                  </router-link>
+                </template>
+
+                <template v-else>
+                  <span class="no-shelf">
+                    Não possui uma prateleira!
+                  </span>
+                </template>
+              </div>
           </div>
         </div>
 
@@ -61,7 +75,7 @@
               R$ {{ getProductPrice }}
             </span>
 
-            <span class="old-price">
+            <span v-if="getProductOldPrice" class="old-price">
               R$ {{ getProductOldPrice }}
             </span>
           </span>
@@ -102,7 +116,7 @@
             </div>
 
             <span>
-              Duna
+              {{  getBookOriginalTitle  }}
             </span>
           </div>
 
@@ -116,7 +130,7 @@
                 </div>
 
                 <span>
-                  Quase Novo
+                  {{  getBookCondicao  }}
                 </span>
               </div>
             </div>
@@ -130,7 +144,7 @@
                 </div>
 
                 <span>
-                  Aleph
+                  {{ getBookEditora }}
                 </span>
               </div>
             </div>
@@ -144,7 +158,7 @@
                 </div>
 
                 <span>
-                  Curitiba PR
+                  {{ getBookLocalizacao }}
                 </span>
               </div>
             </div>
@@ -157,7 +171,7 @@
           </div>
 
           <span>
-            primeiro volume da série Duna, capa dura e em ótimo estado. lido só uma vez, tem um pequeno amassado na lombada, em baixo.  aceito troca pelo segundo volume somente.
+            {{ getBookDescricao }}
           </span>
         </div>
 
@@ -203,7 +217,7 @@
                 </div>
 
                 <span class="rating-quantity">
-                  6 avaliações
+                  nota {{ getProfileAvalicao }}
                 </span>
               </div>
             </div>
@@ -215,7 +229,7 @@
                 </div>
 
                 <span>
-                  16
+                  {{  getProfileQtdAnunciado  }}
                 </span>
               </div>
             </div>
@@ -227,7 +241,7 @@
                 </div>
 
                 <span>
-                  7
+                  {{ getProfileQtdVendidos }}
                 </span>
               </div>
             </div>
@@ -239,7 +253,7 @@
                 </div>
 
                 <span>
-                  nov/2022
+                  {{ getProfileCreatedAt }}
                 </span>
               </div>
             </div>
@@ -309,13 +323,7 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex';
-
-  import example1 from '../../static/product/example1.jpg';
-  import example2 from '../../static/product/example2.png';
-  import example3 from '../../static/product/example3.png';
-  import example4 from '../../static/product/example4.png';
-  import example5 from '../../static/product/example5.png';
+  import { mapGetters, mapActions } from 'vuex';
 
   import Appbutton from '../../components/inputs/AppButton.vue'
   import InputTextArea from '../../components/inputs/InputTextArea.vue'
@@ -332,59 +340,6 @@
 
     data() {
       return {
-        product: {
-          id: 1,
-          images: [
-            example1,
-            example2,
-            example3,
-            example4,
-            example5,
-          ],
-
-          title: 'duna livro 1 capa dura',
-          price: {
-            actual: '54.80',
-            old: '62.90',
-          },
-          seller: {
-            name: 'Matheus Gabriel',
-            id: 1321,
-            products: [
-              {
-                id: 1,
-                image: example1,
-              },
-              {
-                id: 2,
-                image: example1,
-              },
-              {
-                id: 3,
-                image: example1,
-              },
-              {
-                id: 4,
-                image: example1,
-              },
-            ],
-          },
-          shelf: {
-            name: 'Minha primeira prateleira',
-            id: 31,
-          },
-          badges: [
-            {
-              type: 'quality',
-              value: 'G',
-            },
-
-            {
-              type: 'trade',
-              value: true,
-            },
-          ],
-        },
         wishlistIcon,
         securityIcon,
         selected_image: 0,
@@ -395,33 +350,131 @@
     },
 
     computed: {
-      ...mapGetters(['getAuthentication']),
+      ...mapGetters([
+        'getAuthentication',
+        'getProduto',
+        'getUser',
+      ]),
+
       getBookTitle() {
-        return this.product.title;
+        const { titulo = '' } = this.getProduto || {};
+
+        return titulo;
+      },
+
+      getBookOriginalTitle() {
+        const { livro_nome: livroNome = '' } = this.getProduto || {};
+
+        return livroNome;
+      },
+
+      getBookCondicao() {
+        const { estado = '' } = this.getProduto || {};
+
+        return estado;
+      },
+
+      getBookEditora() {
+        const { editora = '' } = this.getProduto || {};
+
+        return editora;
+      },
+
+      getBookLocalizacao() {
+        const { uf = 'Brazil' } = this.getProduto || {};
+
+        return uf;
+      },
+
+      getBookDescricao() {
+        const { descricao = '' } = this.getProduto || {};
+
+        return descricao;
+      },
+
+      getUserArroba() {
+        const { user_arroba: userArroba = '' } = this.getProduto || {};
+
+        return userArroba;
       },
 
       getProfileName() {
-        return this.product.seller.name;
+        const { name = '' } = this.getUser || {};
+
+        return name;
+      },
+
+      getProfileAvalicao() {
+        const { rate = 3 } = this.getUser || {};
+
+        return rate;
+      },
+
+      getProfileQtdAnunciado() {
+        const { qtd_anuncios: qtdAnuncios = 0 } = this.getUser || {};
+
+        return qtdAnuncios;
+      },
+
+      getProfileQtdVendidos() {
+        const { qtd_vendidos: qtdVendidos = 0 } = this.getUser || {};
+
+        return qtdVendidos;
+      },
+
+      getProfileCreatedAt() {
+        const { created_at: createdAt = '' } = this.getUser || {};
+
+        const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+        const partes = createdAt.split('-');
+        const ano = partes[0];
+        const mes = parseInt(partes[1]) - 1;
+
+        return meses[mes] + '/' + ano;
       },
 
       getShelfName() {
-        return this.product.shelf.name;
+        const { shelf = '' } = this.getProduto || {};
+
+        return shelf;
       },
 
       getProductPrice() {
-        return this.product.price.actual;
+        const { preco = 0 } = this.getProduto || {};
+
+        return preco;
       },
 
       getProductOldPrice() {
-        return this.product.price.old;
+        const { old_preco: oldPreco = 0 } = this.getProduto || {};
+
+        return oldPreco;
+      },
+
+      getProductImages() {
+        const { images = [] } = this.getProduto || {};
+
+        return images;
       },
 
       getSelectedImage() {
-        return this.product.images[this.selected_image]
+        return this.getImageUrl(this.getProductImages[this.selected_image]);
       },
     },
 
+    async mounted() {
+      await this.fetchProduto({ id: this.$route.params.id })
+
+      await this.fetchUser(this.getUserArroba)
+    },
+
     methods: {
+      ...mapActions([
+        'fetchProduto',
+        'fetchUser',
+      ]),
+
       getUserProfileRoute() {
         this.$router.push({
           path: `/profile/${this.product.seller.id}`,
@@ -461,6 +514,10 @@
         return this.selected_items.push(index);
       },
 
+      getImageUrl(image) {
+        return `https://ybhmnejynxteqinaedha.supabase.co/storage/v1/object/public/images/${image}`;
+      },
+
       getPurchaseRoute() {
         this.$router.push({
           path: '/purchase',
@@ -479,6 +536,7 @@
     .images-container {
       margin-right: 24px;
       width: 50%;
+      max-width: 600px;
 
       .image-preview-backdrop {
         width: 100%;
@@ -795,4 +853,5 @@
   .modal-leave-active { transition: opacity 0.1s; }
   .modal-enter,
   .modal-leave-to { opacity: 0; }
+  .no-shelf { opacity: .5 }
 </style>

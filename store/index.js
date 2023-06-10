@@ -5,6 +5,7 @@ export const state = () => ({
   auth: {},
   user: {},
   catalogo_produtos: [],
+  produto: {},
 })
 
 export const actions = {
@@ -157,6 +158,19 @@ export const actions = {
 
     return true;
   },
+
+  async fetchProduto({ commit }, { id }) {
+    const { data, error }= await supabase
+      .from('produto')
+      .select()
+      .eq('id', id)
+
+    if (! error) {
+      commit('newProduto', data[0])
+    }
+
+    return true;
+  },
 }
 
 export const mutations = {
@@ -164,17 +178,22 @@ export const mutations = {
     state.auth = data;
   },
 
-  newUser(state, user) {
-    state.user = user;
+  newUser(state, data) {
+    state.user = data;
   },
 
   newCatalogoProdutos(state, data) {
     state.catalogo_produtos = data;
   },
+
+  newProduto(state, data) {
+    state.produto = data;
+  },
 }
 
 export const getters = {
   getAuthentication(state) { return state.auth },
-  getUser(state) {return state.user },
-  getCatalogoProdutos(state) {return state.catalogo_produtos },
+  getUser(state) { return state.user },
+  getCatalogoProdutos(state) { return state.catalogo_produtos },
+  getProduto(state) { return state.produto },
 }
