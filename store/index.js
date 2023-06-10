@@ -6,6 +6,7 @@ export const state = () => ({
   user: {},
   catalogo_produtos: [],
   produto: {},
+  user_produtos: [],
 })
 
 export const actions = {
@@ -153,7 +154,7 @@ export const actions = {
       // .eq('raridade', rarity !== '' ? rarity : undefined)
 
     if (! error) {
-      commit('newCatalogoProdutos', data);
+      return commit('newCatalogoProdutos', data);
     }
 
     return true;
@@ -166,7 +167,20 @@ export const actions = {
       .eq('id', id)
 
     if (! error) {
-      commit('newProduto', data[0])
+      return commit('newProduto', data[0])
+    }
+
+    return true;
+  },
+
+  async fetchUserProducts({ commit }, { arroba }) {
+    const { data, error } = await supabase
+      .from('produto')
+      .select()
+      .eq('user_arroba', arroba);
+
+    if (! error) {
+      return commit('newUserProducts', data);
     }
 
     return true;
@@ -189,6 +203,10 @@ export const mutations = {
   newProduto(state, data) {
     state.produto = data;
   },
+
+  newUserProducts(state, data) {
+    state.user_produtos = data;
+  },
 }
 
 export const getters = {
@@ -196,4 +214,5 @@ export const getters = {
   getUser(state) { return state.user },
   getCatalogoProdutos(state) { return state.catalogo_produtos },
   getProduto(state) { return state.produto },
+  getUserProductsData(state) { return state.user_produtos },
 }

@@ -53,7 +53,7 @@
               <div>
                 <template v-if="getShelfName">
                   <router-link
-                    :to="{ path: `/profile/${product.seller.id}`, query: { shelf: product.shelf.id } }"
+                    :to="{ path: `/profile/${getUserArroba}`, query: { shelf: getShelfName } }"
                     class="link-style"
                   >
                     {{ getShelfName  }}
@@ -263,7 +263,9 @@
     </div>
 
     <div v-else class="loader-container">
-      adsas
+      <MoonLoader
+        color="#FE8133"
+      />
     </div>
 
     <transition name="modal">
@@ -292,14 +294,32 @@
           </p>
 
           <div class="products-container">
-            <div
-              v-for="(seller_product, index) in product.seller.products"
-              :key="index"
-              class="item-to-select"
-              :class="{ 'selected' : selected_items.includes(index) }"
-              :style="{ backgroundImage: `url(${seller_product.image})` }"
-              @click="setItemSelected(index)"
-            />
+            <template v-if="products_request_pending">
+              <div class="barganha-centralize">
+                <MoonLoader
+                  color="#FE8133"
+                />
+              </div>
+            </template>
+
+            <template v-else-if="getUserProductsData.length">
+              <div
+                v-for="(seller_product, index) in getUserProductsData"
+                :key="index"
+                class="item-to-select"
+                :class="{ 'selected' : selected_item === index }"
+                :style="{ backgroundImage: `url(${getImageUrl(seller_product.images[0])})` }"
+                @click="setItemSelected(index)"
+              />
+            </template>
+
+            <template v-else>
+              <div class="barganha-centralize">
+                <span>
+                  Parece que você não tem nada anunciado!
+                </span>
+              </div>
+            </template>
           </div>
 
           <p class="subtitle">
@@ -327,6 +347,8 @@
 </template>
 
 <script>
+  import MoonLoader from 'vue-spinner/src/MoonLoader.vue';
+
   import { mapGetters, mapActions } from 'vuex';
 
   import Appbutton from '../../components/inputs/AppButton.vue'
@@ -340,6 +362,7 @@
     components: {
       Appbutton,
       InputTextArea,
+      MoonLoader,
     },
 
     data() {
@@ -349,8 +372,9 @@
         selected_image: 0,
         should_show_modal: false,
         barganha_text: '',
-        selected_items: [],
+        selected_item: -1,
         request_pending: false,
+        products_request_pending: false,
       }
     },
 
@@ -359,6 +383,7 @@
         'getAuthentication',
         'getProduto',
         'getUser',
+        'getUserProductsData',
       ]),
 
       getBookTitle() {
@@ -502,12 +527,13 @@
       ...mapActions([
         'fetchProduto',
         'fetchUser',
+        'fetchUserProducts',
       ]),
 
       getUserProfileRoute() {
         this.$router.push({
-          path: `/profile/${this.product.seller.id}`,
-          query: { shelf: this.product.shelf.id },
+          path: `/profile/${this.getUserArroba}`,
+          query: { shelf: this.getShelfName },
         });
       },
 
@@ -521,6 +547,14 @@
         }
 
         this.should_show_modal = true;
+
+        if (!this.getUserProductsData.length) {
+          this.products_request_pending = true;
+
+          this.fetchUserProducts({ arroba: this.getAuthentication.arroba });
+
+          this.products_request_pending = false;
+        }
       },
 
       wishlistClick() {
@@ -531,16 +565,17 @@
 
       closeModal() {
         this.should_show_modal = false;
+        this.selected_item = -1;
       },
 
       setItemSelected(index) {
-        if (this.selected_items.includes(index)) {
-          const itemIndex = this.selected_items.indexOf(index);
+        if (this.selected_item === index) {
+          this.selected_item = -1;
 
-          return this.selected_items.splice(itemIndex, 1);
+          return;
         }
 
-        return this.selected_items.push(index);
+        this.selected_item = index;
       },
 
       getImageUrl(image) {
@@ -883,6 +918,17 @@
         border: 3px solid $primary-orange;
       }
     }
+  }
+
+  .barganha-centralize {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    overflow:hidden;
+
+    span { opacity: .5; }
   }
 
   .modal-enter-active,

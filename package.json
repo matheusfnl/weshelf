@@ -25,6 +25,7 @@
     "uuid": "^9.0.0",
     "vue": "^2.7.10",
     "vue-server-renderer": "^2.7.10",
+    "vue-spinner": "^1.0.4",
     "vue-template-compiler": "^2.7.10"
   },
   "devDependencies": {

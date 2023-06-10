@@ -32,7 +32,7 @@
 
       label: {
         type: String,
-        required: true,
+        default: '',
       },
 
       value: {
