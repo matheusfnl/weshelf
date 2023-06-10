@@ -322,8 +322,8 @@
             </template>
           </div>
 
-          <p class="subtitle">
-            Escolha um livro para oferecer em troca por
+          <p class="subtitle mt-3">
+            Deixe um recado para
 
             <span>
               {{ getProfileName }}
