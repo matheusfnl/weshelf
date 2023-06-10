@@ -117,11 +117,11 @@
         </div>
 
         <div class="badge-container">
-          <div class="item-badge">
-            {{ item.estado }}
+          <div class="item-badge badge-blue">
+            {{ getEstadoIcon(item.estado) }}
           </div>
 
-          <div v-if="item.trocas" class="item-badge">
+          <div v-if="item.trocas" class="item-badge badge-green">
             TRADE
           </div>
         </div>
@@ -348,6 +348,30 @@
       getProductImage(product) {
         return { backgroundImage: `url(https://ybhmnejynxteqinaedha.supabase.co/storage/v1/object/public/images/${product.images[0]})` };
       },
+
+      getEstadoIcon(estado) {
+        if (estado === 'great') {
+          return 'S';
+        }
+
+        if (estado === 'good') {
+          return 'A';
+        }
+
+        if (estado === 'medium') {
+          return 'B';
+        }
+
+        if (estado === 'bad') {
+          return 'C';
+        }
+
+        if (estado === 'horrible') {
+          return 'D';
+        }
+
+        return '';
+      },
     },
   }
 </script>
@@ -432,6 +456,10 @@
           justify-content: center;
           align-items: center;
         }
+
+        .badge-blue { background-color: rgba(159, 253, 255, 0.5) }
+
+        .badge-green { background-color: rgba(183, 255, 124, 0.5) }
       }
 
       .item-image {
