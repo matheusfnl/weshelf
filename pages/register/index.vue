@@ -68,6 +68,7 @@
       <AppButton
         :rounded="false"
         class="mt-4 w-100"
+        :request_pending="request_pending"
         @click="registerNewUser"
       >
         CADASTRAR
@@ -116,6 +117,7 @@
         name: '',
         arroba: '',
         validate: {},
+        request_pending: false,
       }
     },
 
@@ -169,6 +171,8 @@
 
         if (this.validate?.errors?.items.length === 0) {
           if (this.password === this.password_confirmation) {
+            this.request_pending= true;
+
             const error = await this.registerUser({
               email: this.email,
               password: this.password,
@@ -179,6 +183,10 @@
             if (!error) {
               this.$router.push({ path: '/' })
             }
+
+            this.$router.push({ path: '/' })
+
+            this.request_pending = false;
           }
         }
       },

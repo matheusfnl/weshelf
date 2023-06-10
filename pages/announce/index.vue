@@ -179,7 +179,7 @@
         </label>
 
         <div class="w-100 d-flex justify-content-end mt-4">
-          <AppButton bold @click="publicarClick">
+          <AppButton bold :request_pending="request_pending" @click="publicarClick">
             PUBLICAR
           </AppButton>
         </div>
@@ -230,6 +230,7 @@
         doacao: false,
         unformatted_images: [],
         validate: {},
+        request_pending: false,
       }
     },
 
@@ -394,6 +395,8 @@
         await this.validate.validate('images', this.unformatted_images)
 
         if (this.getHasNoErrors) {
+          this.request_pending = true;
+
           const response = await this.createProduto({
             userArroba: this.getAuthentication.arroba,
             userId: this.getAuthentication.user_id,
@@ -415,6 +418,8 @@
               path: `/product/${response.id}`,
             })
           }
+
+          this.request_pending = false;
         }
       },
 

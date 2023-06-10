@@ -1,5 +1,6 @@
 <template>
   <button
+    ref="button"
     class="btn-custom"
     :class="[
       getBtnTextColor,
@@ -10,15 +11,22 @@
     :disabled="getBtnDisabled"
     @click="$emit('click', $event)"
   >
-    <span>
+    <span v-if="! request_pending">
       <slot />
+    </span>
+
+    <span v-else class="centralize-loader">
+      <ClipLoader size="12px" color="#FFFFFF" />
     </span>
   </button>
 </template>
 
 <script>
+  import ClipLoader from 'vue-spinner/src/ClipLoader.vue';
+
   export default {
     name: 'AppButton',
+    components: { ClipLoader },
     props: {
       disabled: {
         type: Boolean,
@@ -49,11 +57,16 @@
         type: Boolean,
         default: false,
       },
+
+      request_pending: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     computed: {
       getBtnDisabled() {
-        return this.disabled;
+        return this.disabled || this.request_pending;
       },
 
       getBtnWeight() {
@@ -112,6 +125,18 @@
         return ''
       },
     },
+
+    mounted() {
+      const button = this.$refs.button;
+      const {
+        width,
+        height,
+      } = button.getBoundingClientRect();
+
+      button.style.minWidth = `${width}px`;
+      button.style.minHeight = `${height}px`;
+    },
+
   }
 </script>
 
@@ -194,5 +219,12 @@
       &-primary-yellow { color: $primary-yellow; }
       &-orange { color: $orange; }
     }
+  }
+
+  .centralize-loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-height: 100%;
   }
 </style>

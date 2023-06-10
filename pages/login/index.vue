@@ -37,6 +37,7 @@
       <AppButton
         :rounded="false"
         class="mt-4 w-100"
+        :request_pending="request_pending"
         @click="loginUserData"
       >
         ENTRAR
@@ -52,7 +53,7 @@
     <div class="outside-card">
       <div class="register-message">
         <div class="line" />
-        <span> Novo por aqui? </span>
+        <span>Novo por aqui? </span>
         <div class="line" />
       </div>
 
@@ -88,6 +89,7 @@
         email: '',
         password: '',
         validate: {},
+        request_pending: false,
       };
     },
 
@@ -119,6 +121,8 @@
         await this.validate.validate('password', this.password);
 
         if (this.validate?.errors?.items.length === 0) {
+          this.request_pending = true;
+
           const error = await this.loginUser({
             email: this.email,
             password: this.password,
@@ -127,6 +131,8 @@
           if (! error) {
             this.$router.push({ path: '/' })
           }
+
+          this.request_pending = false;
         }
       },
     },

@@ -82,7 +82,11 @@
       </span>
     </div>
 
-    <div v-if="getCatalogoProdutos.length" class="result-container">
+    <div v-if="request_pending" class="centralize-container">
+      <MoonLoader color="#FE8133" />
+    </div>
+
+    <div v-else-if="getCatalogoProdutos.length" class="result-container">
       <div
         v-for="(item, index) in getCatalogoProdutos"
         :key="index"
@@ -123,18 +127,26 @@
         </div>
       </div>
     </div>
+
+    <div v-else class="centralize-container">
+      <span>
+        Não há resultados :O
+      </span>
+    </div>
   </div>
 </template>
 
 <script>
   import { mapGetters, mapActions } from 'vuex';
 
+  import MoonLoader from 'vue-spinner/src/MoonLoader.vue';
   import InputSelect from '../../components/inputs/InputSelect.vue';
 
   export default {
     name: 'SearchPage',
     components: {
       InputSelect,
+      MoonLoader,
     },
 
     data() {
@@ -145,6 +157,7 @@
         editor: '',
         region: '',
         rarity: false,
+        request_pending: false,
       }
     },
 
@@ -296,6 +309,7 @@
     },
 
     async mounted() {
+      this.request_pending = true;
       this.search_value = this.getRouteQuerySearch;
 
       await this.fetchProdutos({
@@ -304,6 +318,8 @@
         genero: this.gender,
         rarity: this.rarity,
       })
+
+      this.request_pending = false;
     },
 
     methods: {
@@ -475,5 +491,14 @@
   ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
     color: #D6D6D6;
     opacity: 1; /* Firefox */
+  }
+
+  .centralize-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60vh;
+
+    span { opacity: 0.5 }
   }
 </stytle>
