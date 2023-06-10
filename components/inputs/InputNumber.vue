@@ -16,6 +16,7 @@
         spellcheck="false"
         type="number"
         min="0"
+        :disabled="disabled"
         @change="$emit('model', $event.target.value)"
         @blur="$emit('blur')"
         @input="$emit('input')"
@@ -26,6 +27,10 @@
         <span>|</span>
       </div>
     </div>
+
+    <span class="validation">
+      {{ validations }}
+    </span>
   </div>
 </template>
 
@@ -62,6 +67,16 @@
         type: Boolean,
         default: false,
       },
+
+      validations: {
+        type: String,
+        default: '',
+      },
+
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
     },
   }
 </script>
@@ -72,6 +87,7 @@
     flex-direction: column;
     width: 100%;
     margin-bottom: 1rem;
+    position: relative;
   }
 
   .input-area {
@@ -99,6 +115,13 @@
     margin-left: 4px;
 
     .required-icon { color: $dark-orange; }
+  }
+
+  .validation {
+    position: absolute;
+    right: 0;
+    font-size: 12px;
+    color: $clean-red;
   }
 
   input {

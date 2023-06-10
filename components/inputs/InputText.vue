@@ -18,6 +18,10 @@
       @blur="$emit('blur')"
       @input="$emit('input')"
     />
+
+    <span class="validation">
+      {{ validations }}
+    </span>
   </div>
 </template>
 
@@ -54,6 +58,11 @@
         type: Boolean,
         default: false,
       },
+
+      validations: {
+        type: String,
+        default: '',
+      },
     },
   }
 </script>
@@ -64,6 +73,7 @@
     flex-direction: column;
     width: 100%;
     margin-bottom: 1rem;
+    position: relative;
   }
 
   label {
@@ -87,6 +97,13 @@
     transition: all .3s;
     padding: 0px .5rem;
     font-size: 12px;
+  }
+
+  .validation {
+    position: absolute;
+    right: 0;
+    font-size: 12px;
+    color: $clean-red;
   }
 
   input:focus {

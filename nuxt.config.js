@@ -53,7 +53,17 @@ export default {
     'bootstrap-vue/nuxt',
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+    'nuxt-validate',
   ],
+
+  nuxtValidate: {
+    lang: 'en',
+    nuxti18n: {
+      locale: {
+        'pt-BR': 'pt_BR',
+      },
+    },
+  },
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {

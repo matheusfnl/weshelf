@@ -17,6 +17,9 @@
         id="userEmail"
         label="E-mail"
         :value="email"
+        :validations="validate?.errors?.first('email')"
+        @input="validate.reset('email')"
+        @blur="validate.validate('email', email)"
         @model="email = $event"
       />
 
@@ -25,6 +28,9 @@
         label="Senha"
         type="password"
         :value="password"
+        :validations="validate?.errors?.first('password')"
+        @input="validate.reset('password')"
+        @blur="validate.validate('password', password)"
         @model="password = $event"
       />
 
@@ -65,6 +71,7 @@
 
 <script>
   import { mapActions } from 'vuex';
+  import { Validator } from 'vee-validate';
 
   import InputText from '../../components/inputs/InputText.vue';
   import AppButton from '../../components/inputs/AppButton.vue';
@@ -80,7 +87,8 @@
       return {
         email: '',
         password: '',
-      }
+        validate: {},
+      };
     },
 
     head() {
@@ -89,16 +97,36 @@
       };
     },
 
+    mounted() {
+      this.validate = new Validator();
+      this.validate.attach({
+        name: 'email',
+        rules: 'required|email',
+        values: { email: this.email },
+      });
+
+      this.validate.attach({
+        name: 'password',
+        rules: 'required',
+        values: { password: this.password },
+      });
+    },
+
     methods: {
       ...mapActions(['loginUser']),
       async loginUserData() {
-        const error = await this.loginUser({
-          email: this.email,
-          password: this.password,
-        });
+        await this.validate.validate('email', this.email);
+        await this.validate.validate('password', this.password);
 
-        if (! error) {
-          this.$router.push({ path: '/' })
+        if (this.validate?.errors?.items.length === 0) {
+          const error = await this.loginUser({
+            email: this.email,
+            password: this.password,
+          });
+
+          if (! error) {
+            this.$router.push({ path: '/' })
+          }
         }
       },
     },
@@ -116,7 +144,6 @@
 
   .auth-card {
     width: 450px;
-    height: 520px;
     background-color: white;
     border-radius: 20px;
     padding: 45px;

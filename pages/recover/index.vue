@@ -17,13 +17,16 @@
         id="userEmail"
         label="E-mail"
         :value="email"
+        :validations="validate?.errors?.first('email')"
+        @input="validate.reset('email')"
+        @blur="validate.validate('email', email)"
         @model="email = $event"
       />
 
       <AppButton
         :rounded="false"
         class="mt-4 w-100"
-        @click="registerUser"
+        @click="recoverUser"
       >
         ENVIAR E-MAIL
       </AppButton>
@@ -41,7 +44,6 @@
           :rounded="false"
           class="mt-4 w-100"
           color="primary-yellow"
-          @click="registerUser"
         >
           ENTRAR
         </AppButton>
@@ -51,6 +53,8 @@
 </template>
 
 <script>
+  import { Validator } from 'vee-validate';
+
   import InputText from '../../components/inputs/InputText.vue';
   import AppButton from '../../components/inputs/AppButton.vue';
 
@@ -64,6 +68,7 @@
     data() {
       return {
         email: '',
+        validate: {},
       }
     },
 
@@ -73,9 +78,22 @@
       };
     },
 
+    mounted() {
+      this.validate = new Validator();
+      this.validate.attach({
+        name: 'email',
+        rules: 'required|email',
+        values: { email: this.email },
+      });
+    },
+
     methods: {
-      registerUser() {
-        return true;
+      async recoverUser() {
+        await this.validate.validate('email', this.email);
+
+        if (this.validate?.errors?.items.length === 0) {
+          return true;
+        }
       },
     },
   }

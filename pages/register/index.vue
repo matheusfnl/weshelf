@@ -17,6 +17,9 @@
         id="userEmail"
         label="E-mail"
         :value="email"
+        :validations="validate?.errors?.first('email')"
+        @input="validate.reset('email')"
+        @blur="validate.validate('email', email)"
         @model="email = $event"
       />
 
@@ -25,6 +28,9 @@
         label="Senha"
         type="password"
         :value="password"
+        :validations="validate?.errors?.first('password')"
+        @input="validate.reset('password')"
+        @blur="validate.validate('password', password)"
         @model="password = $event"
       />
 
@@ -33,6 +39,9 @@
         label="Confirme a senha"
         type="password"
         :value="password_confirmation"
+        :validations="validate?.errors?.first('password confirmation')"
+        @input="validate.reset('password confirmation')"
+        @blur="validate.validate('password confirmation', password_confirmation)"
         @model="password_confirmation = $event"
       />
 
@@ -40,6 +49,9 @@
         id="userName"
         label="Nome do usuário"
         :value="name"
+        :validations="validate?.errors?.first('user name')"
+        @input="validate.reset('user name')"
+        @blur="validate.validate('user name', name)"
         @model="name = $event"
       />
 
@@ -47,6 +59,9 @@
         id="userArroba"
         label="Usuário"
         :value="arroba"
+        :validations="validate?.errors?.first('at sign')"
+        @input="validate.reset('at sign')"
+        @blur="validate.validate('at sign', arroba)"
         @model="arroba = $event"
       />
 
@@ -81,6 +96,7 @@
 
 <script>
   import { mapActions } from 'vuex';
+  import { Validator } from 'vee-validate';
 
   import InputText from '../../components/inputs/InputText.vue';
   import AppButton from '../../components/inputs/AppButton.vue';
@@ -99,6 +115,7 @@
         password_confirmation: '',
         name: '',
         arroba: '',
+        validate: {},
       }
     },
 
@@ -108,19 +125,60 @@
       };
     },
 
+    mounted() {
+      this.validate = new Validator();
+      this.validate.attach({
+        name: 'email',
+        rules: 'required|email',
+        values: { email: this.email },
+      });
+
+      this.validate.attach({
+        name: 'password',
+        rules: 'required',
+        values: { password: this.password },
+      });
+
+      this.validate.attach({
+        name: 'password confirmation',
+        rules: 'required',
+        values: { password_confirmation: this.password_confirmation },
+      });
+
+      this.validate.attach({
+        name: 'user name',
+        rules: 'required',
+        values: { name: this.name },
+      });
+
+      this.validate.attach({
+        name: 'at sign',
+        rules: 'required',
+        values: { arroba: this.arroba },
+      });
+    },
+
     methods: {
       ...mapActions(['registerUser']),
       async registerNewUser() {
-        if (this.password === this.password_confirmation) {
-          const error = await this.registerUser({
-            email: this.email,
-            password: this.password,
-            name: this.name,
-            arroba: this.arroba,
-          })
+        await this.validate.validate('email', this.email);
+        await this.validate.validate('password', this.password);
+        await this.validate.validate('password confirmation', this.password_confirmation);
+        await this.validate.validate('user name', this.name);
+        await this.validate.validate('at sign', this.arroba);
 
-          if (!error) {
-            this.$router.push({ path: '/' })
+        if (this.validate?.errors?.items.length === 0) {
+          if (this.password === this.password_confirmation) {
+            const error = await this.registerUser({
+              email: this.email,
+              password: this.password,
+              name: this.name,
+              arroba: this.arroba,
+            })
+
+            if (!error) {
+              this.$router.push({ path: '/' })
+            }
           }
         }
       },

@@ -49,6 +49,10 @@
             </div>
           </div>
         </label>
+
+        <span class="validation">
+          {{ validate?.errors?.first('images') }}
+        </span>
       </div>
 
       <div class="form-part-2">
@@ -58,6 +62,9 @@
           placeholder="utilize palavras chaves, como o nome do livro e suas principais características"
           required
           :value="titulo_anuncio"
+          :validations="validate?.errors?.first('announce title')"
+          @input="validate.reset('announce title')"
+          @blur="validate.validate('announce title', titulo_anuncio)"
           @model="titulo_anuncio = $event"
         />
 
@@ -68,6 +75,10 @@
             class="price-input"
             required
             :value="price_anuncio"
+            :validations="getPriceValidation"
+            :disabled="doacao"
+            @input="validate.reset('price')"
+            @blur="validate.validate('price', price_anuncio)"
             @model="price_anuncio = $event"
           />
 
@@ -85,6 +96,9 @@
           placeholder="igualzinho na capa ou na ficha catalográfica ;)"
           required
           :value="titulo_do_livro"
+          :validations="validate?.errors?.first('book title')"
+          @input="validate.reset('book title')"
+          @blur="validate.validate('book title', titulo_do_livro)"
           @model="titulo_do_livro = $event"
         />
 
@@ -95,6 +109,9 @@
             placeholder="essa aqui você acha na capa ou na lateral"
             required
             :value="editora"
+            :validations="validate?.errors?.first('publisher')"
+            @input="validate.reset('publisher')"
+            @blur="validate.validate('publisher', editora)"
             @model="editora = $event"
           />
 
@@ -105,6 +122,9 @@
             class="mb-3"
             required
             :options="getBookGenderOptions"
+            :validations="validate?.errors?.first('gender')"
+            @input="validate.reset('gender')"
+            @blur="validate.validate('gender', genero)"
             @model="genero = $event"
           />
         </div>
@@ -117,6 +137,9 @@
             default_label="selecione..."
             required
             :options="getBookConservationOptions"
+            :validations="validate?.errors?.first('conservation')"
+            @input="validate.reset('conservation')"
+            @blur="validate.validate('conservation', conservacao)"
             @model="conservacao = $event"
           />
 
@@ -137,6 +160,9 @@
             placeholder="faça a publi do livro aqui, se você quiser, mas não esqueça de adicionar detalhes sobre as condições dele, por exemplo, se o livro possui amassados ou alguma folha rasgadinha..."
             required
             :value="descricao"
+            :validations="validate?.errors?.first('description')"
+            @input="validate.reset('description')"
+            @blur="validate.validate('description', descricao)"
             @model="descricao = $event"
           />
 
@@ -164,6 +190,7 @@
 
 <script>
   import { mapActions, mapGetters } from 'vuex';
+  import { Validator } from 'vee-validate';
 
   import InputText from '../../components/inputs/InputText.vue';
   import InputNumber from '../../components/inputs/InputNumber.vue';
@@ -202,6 +229,7 @@
         raridade: false,
         doacao: false,
         unformatted_images: [],
+        validate: {},
       }
     },
 
@@ -284,33 +312,109 @@
           },
         ];
       },
+
+      getPriceValidation() {
+        if (this.doacao) {
+          return '';
+        }
+
+        return this.validate?.errors?.first('price')
+      },
+
+      getHasNoErrors() {
+        if (this.doacao) {
+          return this.validate?.errors?.items.length === 1 && this.validate?.errors?.items[0]?.field === 'price';
+        }
+
+        return this.validate?.errors?.items.length === 0;
+      },
+    },
+
+    mounted() {
+      this.validate = new Validator();
+      this.validate.attach({
+        name: 'announce title',
+        rules: 'required|max:30',
+        values: { titulo_anuncio: this.titulo_anuncio },
+      });
+
+      this.validate.attach({
+        name: 'price',
+        rules: 'required|min_value:1',
+        values: { price_anuncio: this.price_anuncio },
+      });
+
+      this.validate.attach({
+        name: 'book title',
+        rules: 'required|max:30',
+        values: { titulo_do_livro: this.titulo_do_livro },
+      });
+
+      this.validate.attach({
+        name: 'publisher',
+        rules: 'required',
+        values: { editora: this.editora },
+      });
+
+      this.validate.attach({
+        name: 'gender',
+        rules: 'required',
+        values: { genero: this.genero },
+      });
+
+      this.validate.attach({
+        name: 'conservation',
+        rules: 'required',
+        values: { genero: this.conservacao },
+      });
+
+      this.validate.attach({
+        name: 'description',
+        rules: 'required|max:400',
+        values: { descricao: this.descricao },
+      });
+
+      this.validate.attach({
+        name: 'images',
+        rules: 'required',
+        values: { descricao: this.unformatted_images },
+      });
     },
 
     methods: {
       ...mapActions(['createProduto']),
       async publicarClick() {
-        const response = await this.createProduto({
-          userArroba: this.getAuthentication.arroba,
-          userId: this.getAuthentication.user_id,
-          titulo: this.titulo_anuncio,
-          preco: parseInt(this.price_anuncio),
-          livroNome: this.titulo_do_livro,
-          editora: this.editora,
-          trocas: this.trocas,
-          genero: this.genero,
-          doacao: this.doacao,
-          estado: this.conservacao,
-          raridade: this.raridade,
-          descricao: this.descricao,
-          images: this.unformatted_images,
-        })
+        await this.validate.validate('announce title', this.titulo_anuncio);
+        await this.validate.validate('price', this.price_anuncio);
+        await this.validate.validate('book title', this.titulo_do_livro);
+        await this.validate.validate('publisher', this.editora);
+        await this.validate.validate('gender', this.genero);
+        await this.validate.validate('conservation', this.conservacao);
+        await this.validate.validate('description', this.descricao);
+        await this.validate.validate('images', this.unformatted_images)
 
-        console.log(response);
-
-        if (! response.error) {
-          this.$router.push({
-            path: `/product/${response.id}`,
+        if (this.getHasNoErrors) {
+          const response = await this.createProduto({
+            userArroba: this.getAuthentication.arroba,
+            userId: this.getAuthentication.user_id,
+            titulo: this.titulo_anuncio,
+            preco: parseInt(this.price_anuncio),
+            livroNome: this.titulo_do_livro,
+            editora: this.editora,
+            trocas: this.trocas,
+            genero: this.genero,
+            doacao: this.doacao,
+            estado: this.conservacao,
+            raridade: this.raridade,
+            descricao: this.descricao,
+            images: this.unformatted_images,
           })
+
+          if (! response.error) {
+            this.$router.push({
+              path: `/product/${response.id}`,
+            })
+          }
         }
       },
 
@@ -326,6 +430,7 @@
         const files = event.target.files;
 
         this.uploaded_images = []
+        this.unformatted_images = []
 
         Array.from(files).forEach((image, index) => {
           if (index < 5) {
@@ -371,14 +476,14 @@
       padding: 0 10%;
       margin-top: 40px;
 
-      &-part-1 { margin-right: 24px; }
+      &-part-1 { margin-right: 24px; position: relative; }
       &-part-2 { flex-grow: 1; }
 
       .checkbox-container {
         display: flex;
         gap: 24px;
         align-items: center;
-        .price-input { width: 150px;}
+        .price-input { width: 460px;}
       }
 
       .rarity { width: 100%; }
@@ -500,5 +605,13 @@
         height: 35px;
       }
     }
+  }
+
+  .validation {
+    position: absolute;
+    right: 0;
+    top: -24px;
+    font-size: 12px;
+    color: $clean-red;
   }
 </style>

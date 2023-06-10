@@ -36,6 +36,10 @@
           {{ option.label }}
         </option>
     </select>
+
+    <span class="validation">
+      {{ validations }}
+    </span>
   </div>
 </template>
 
@@ -87,6 +91,11 @@
         type: String,
         default: '',
       },
+
+      validations: {
+        type: String,
+        default: '',
+      },
     },
 
     computed: {
@@ -112,6 +121,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    position: relative;
   }
 
   label {
@@ -141,6 +151,13 @@
   select:focus {
     border-color: $primary-orange;
     outline: 1px normal #000
+  }
+
+  .validation {
+    position: absolute;
+    right: 0;
+    font-size: 12px;
+    color: $clean-red;
   }
 
   .placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */

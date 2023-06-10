@@ -13,6 +13,7 @@ module.exports = {
   // add your custom rules here
   rules: {
     "arrow-spacing": "error",
+    "dot-notation": 0,
     "comma-dangle": ["error", "always-multiline"],
     "comma-spacing": ["error", { "before": false, "after": true }],
     "no-multi-spaces": ["error"],

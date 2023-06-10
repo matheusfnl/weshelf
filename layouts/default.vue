@@ -17,7 +17,9 @@
     mounted() {
       const user = JSON.parse(localStorage.getItem('sb-ybhmnejynxteqinaedha-auth-token'));
 
-      this.setAuthentication(user);
+      if (user) {
+        this.setAuthentication(user);
+      }
     },
 
     methods: {
