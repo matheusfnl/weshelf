@@ -14,12 +14,6 @@
             <span class="name">
               {{ getProfileName }}
             </span>
-
-            <!-- <span class="division">●</span>
-
-            <span class="location">
-              {{ getLocation }}
-            </span> -->
           </div>
 
           <div class="profile-part mt-2">
@@ -34,7 +28,13 @@
             <div class="title">BARGANHAS</div>
 
             <div class="content barganhas mt-2">
-              <template v-if="barganhas.length">
+              <template v-if="barganhas_request_pending">
+                <div class="w-100 d-flex justify-content-center py-3">
+                  <ClipLoader color="#FE8133" size="20px" />
+                </div>
+              </template>
+
+              <template v-else-if="barganhas.length">
                 <div
                   v-for="(barganha, index) in barganhas"
                   :key="index"
@@ -71,7 +71,13 @@
             <div class="title">PROPOSTAS</div>
 
             <div class="content propostas mt-2">
-              <template v-if="propostas.length">
+              <template v-if="propostas_request_pending">
+                <div class="w-100 d-flex justify-content-center py-3">
+                  <ClipLoader color="#FE8133" size="20px" />
+                </div>
+              </template>
+
+              <template v-else-if="propostas.length">
                 <div
                   v-for="(proposta, index) in propostas"
                   :key="index"
@@ -107,7 +113,13 @@
           <div class="divisor-container">
             <div class="title">MINHAS PRATELEIRAS</div>
 
-            <div v-if="prateleiras.length" class="content shelfs mt-2">
+            <div v-if="user_products_request_pending">
+              <div class="w-100 d-flex justify-content-center py-3">
+                <ClipLoader color="#FE8133" size="20px" />
+              </div>
+            </div>
+
+            <div v-else-if="prateleiras.length" class="content shelfs mt-2">
               <div
                 v-for="(shelf, index) in prateleiras"
                 :key="index"
@@ -133,8 +145,8 @@
 
             <div v-else>
               <div class="w-100 d-flex justify-content-center py-3 empty-prateleira">
-                  Você não tem prateleiras :(
-                </div>
+                Você não tem prateleiras :(
+              </div>
             </div>
           </div>
 
@@ -313,6 +325,7 @@
 <script>
   import { mapActions, mapGetters } from 'vuex';
 
+  import ClipLoader from 'vue-spinner/src/ClipLoader.vue';
   import banner from '../../static/profile/banner.png';
   import example from '../../static/product/example1.jpg';
   import ratingStar from '../../static/utils/rating-star.png'
@@ -320,6 +333,7 @@
 
   export default {
     name: 'ProfilePage',
+    components: { ClipLoader },
     data() {
       return {
         banner,
@@ -328,38 +342,11 @@
         prateleiras: [],
         barganhas: [],
         propostas: [],
+        user_request_pending: false,
+        user_products_request_pending: false,
+        barganhas_request_pending: false,
+        propostas_request_pending: false,
         profile: {
-          image: '',
-          name: 'Pedro Nunes',
-          profile: 'pedronunesbooks',
-          city: 'Curitiba | PR',
-          shelfs: [
-            {
-              name: 'terror',
-              books: [
-                { src: example },
-                { src: example },
-                { src: example },
-              ],
-            },
-            {
-              name: 'terror',
-              books: [
-                { src: example },
-                { src: example },
-                { src: example },
-              ],
-            },
-            {
-              name: 'terror',
-              books: [
-                { src: example },
-                { src: example },
-                { src: example },
-              ],
-            },
-          ],
-
           wishlist: [
             {
               id: 1,
@@ -441,10 +428,6 @@
         return meses[mes] + '/' + ano;
       },
 
-      getLocation() {
-        return this.profile.city;
-      },
-
       getShelfs() {
         return this.getUser.prateleiras || []
       },
@@ -463,8 +446,14 @@
     },
 
     async mounted() {
+      this.user_request_pending = true;
+      this.user_products_request_pending = true;
+      this.barganhas_request_pending = true;
+      this.propostas_request_pending = true;
       await this.fetchUser(this.$route.params.id);
+      this.user_request_pending = false;
       await this.fetchUserProducts({ arroba: this.$route.params.id });
+      this.user_products_request_pending = false;
 
       this.prateleiras = Object.values(
         this.getUserProductsData.reduce((acc, item) => {
@@ -482,7 +471,9 @@
 
       if (this.getIsMyProfile) {
         this.barganhas = await this.fetchMinhasBarganhas({ arroba: this.$route.params.id })
+        this.barganhas_request_pending = false;
         this.propostas = await this.fetchMinhasPropostas({ arroba: this.$route.params.id })
+        this.propostas_request_pending = false;
       }
     },
 
