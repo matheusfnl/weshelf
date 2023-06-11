@@ -399,6 +399,32 @@ export const actions = {
     }
   },
 
+  async fetchMinhasBarganhas(context, { arroba }) {
+    try {
+      const { data } = await supabase
+        .from('barganha')
+        .select()
+        .eq('comprador_arroba', arroba)
+
+      return data;
+    } catch (err) {
+      return true;
+    }
+  },
+
+  async fetchMinhasPropostas(context, { arroba }) {
+    try {
+      const { data } = await supabase
+        .from('barganha')
+        .select()
+        .eq('vendedor_arroba', arroba)
+
+      return data;
+    } catch (err) {
+      return true;
+    }
+  },
+
   addProdutoVendaLocal({ commit }, { produto }) {
     commit('newAddProdutoVendaLocal', produto)
   },
