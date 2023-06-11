@@ -327,7 +327,7 @@
           </div>
 
           <div class="cotinue-container mt-3">
-            <AppButton bold @click="finalizarCompra">
+            <AppButton :request_pending="compra_request_pending" bold @click="finalizarCompra">
               CONTINUAR
             </AppButton>
           </div>
@@ -485,6 +485,7 @@
         payment_boleto: false,
         request_pending: false,
         should_show_modal: false,
+        compra_request_pending: false,
         sedexChecked: false,
         pacChecked: false,
         endereco_novo: {
@@ -517,6 +518,7 @@
       ...mapGetters([
         'getCarrinho',
         'getAuthentication',
+        'getVenda',
       ]),
 
       getTotalVendaPreco() {
@@ -570,8 +572,10 @@
       },
     },
 
-    mounted() {
+    async mounted() {
       this.request_pending = true;
+
+      await this.fetchVenda({ compradorArroba: this.getAuthentication.arroba })
 
       if (! this.getCarrinho.length) return;
 
@@ -643,6 +647,8 @@
       ...mapActions([
         'removeProdutoVendaLocal',
         'removeProdutoVenda',
+        'finishVenda',
+        'fetchVenda',
       ]),
 
       async finalizarCompra() {
@@ -652,7 +658,15 @@
         await this.validate.validate('phone', this.telefone);
 
         if (this.checkCanFinish) {
-          return true;
+          this.compra_request_pending = true;
+
+          const error = await this.finishVenda({ idVenda: this.getVenda.id });
+
+          if (! error) {
+            this.$router.push({ path: '/' })
+          }
+
+          this.compra_request_pending = false;
         }
       },
 
@@ -737,9 +751,18 @@
       },
 
       async removeItemFromCart(produto) {
+        const arrayDeArrobas = this.getCarrinho.map(objeto => objeto.user_arroba)
+        const arrobasSemRepeticao = [...new Set(arrayDeArrobas)];
+        const ocorrencias = arrayDeArrobas.filter(item => item === produto.user_arroba).length
+
+        if (ocorrencias === 1) {
+          arrobasSemRepeticao.splice(arrobasSemRepeticao.indexOf(produto.user_id), 1);
+        }
+
         const error = await this.removeProdutoVenda({
           id: produto.id,
           compradorArroba: this.getAuthentication.arroba,
+          vendedorArroba: arrobasSemRepeticao,
         })
 
         if (! error) {

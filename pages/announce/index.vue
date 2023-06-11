@@ -69,10 +69,11 @@
         />
 
         <div class="checkbox-container">
-          <InputNumber
+          <InputText
             id="precoAnuncio"
             label="PREÇO"
             class="price-input"
+            type="number"
             required
             :value="price_anuncio"
             :validations="getPriceValidation"
@@ -193,7 +194,6 @@
   import { Validator } from 'vee-validate';
 
   import InputText from '../../components/inputs/InputText.vue';
-  import InputNumber from '../../components/inputs/InputNumber.vue';
   import InputTextArea from '../../components/inputs/InputTextArea.vue';
   import InputSelect from '../../components/inputs/InputSelect.vue';
   import AppButton from '../../components/inputs/AppButton.vue';
@@ -205,7 +205,6 @@
     name: 'AnnouncePage',
     components: {
       InputText,
-      InputNumber,
       InputTextArea,
       InputSelect,
       AppButton,
@@ -335,7 +334,7 @@
       this.validate = new Validator();
       this.validate.attach({
         name: 'announce title',
-        rules: 'required|max:30',
+        rules: 'required|max:300',
         values: { titulo_anuncio: this.titulo_anuncio },
       });
 
@@ -347,7 +346,7 @@
 
       this.validate.attach({
         name: 'book title',
-        rules: 'required|max:30',
+        rules: 'required|max:300',
         values: { titulo_do_livro: this.titulo_do_livro },
       });
 

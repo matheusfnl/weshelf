@@ -8,6 +8,7 @@ export const state = () => ({
   produto: {},
   user_produtos: [],
   venda_local: [],
+  venda: {},
 })
 
 export const actions = {
@@ -57,6 +58,14 @@ export const actions = {
     const { error } = await supabase.auth.signOut()
 
     if (!error) {
+      commit('newAuthentication', {})
+      commit('newCatalogoProdutos', [])
+      commit('newProduto', {})
+      commit('newUserProducts', [])
+      commit('newVendaLocal', [])
+      commit('newVenda', {})
+      commit('newUser', {})
+
       return commit('newAuthentication', {})
     }
 
@@ -136,6 +145,15 @@ export const actions = {
         })
         .select()
 
+      const { data } = await supabase.from('user_public_data').select().eq('arroba', userArroba)
+      const { qtd_anuncios: qtdAnuncios } = data[0];
+      const newQuantity = qtdAnuncios + 1;
+
+      await supabase
+        .from('user_public_data')
+        .update({ qtd_anuncios: newQuantity })
+        .eq('arroba', userArroba);
+
       return {
         ...response.data[0],
         error: false,
@@ -188,9 +206,9 @@ export const actions = {
     return true;
   },
 
-  async removeProdutoVenda(context, { id, compradorArroba }) {
+  async removeProdutoVenda(context, { id, compradorArroba, vendedorArroba }) {
     try {
-      const { data: oldData } = await supabase.from('venda').select().eq('comprador_arroba', compradorArroba);
+      const { data: oldData } = await supabase.from('venda').select().eq('comprador_arroba', compradorArroba).neq('finalizada', true);
 
       if (oldData.length) {
         const { produtos_id: produtosId } = oldData[0];
@@ -201,7 +219,10 @@ export const actions = {
           if (produtosId.length) {
             await supabase
               .from('venda')
-              .update({ produtos_id: produtosId })
+              .update({
+                produtos_id: produtosId,
+                vendedor_arroba: vendedorArroba,
+              })
               .eq('comprador_arroba', compradorArroba)
               .single();
           } else {
@@ -210,8 +231,6 @@ export const actions = {
               .delete()
               .eq('comprador_arroba', compradorArroba);
           }
-
-          console.log('chegou aqui ne')
 
           await supabase
             .from('produto')
@@ -226,17 +245,29 @@ export const actions = {
 
   async addProdutoVenda(context, { id, vendedorArroba, compradorArroba }) {
     try {
-      const { data: oldData } = await supabase.from('venda').select().eq('comprador_arroba', compradorArroba);
+      const { data: oldData } = await supabase.from('venda').select().eq('comprador_arroba', compradorArroba).neq('finalizada', true);
 
       if (oldData.length) {
-        const { produtos_id: produtosId } = oldData[0];
+        const {
+          produtos_id: produtosId,
+          vendedor_arroba: oldVendedorArroba,
+        } = oldData[0];
 
         if (! produtosId.includes(id)) {
           produtosId.push(id);
 
+          const novoArroba = oldVendedorArroba
+
+          if (!oldVendedorArroba.includes(vendedorArroba)) {
+            novoArroba.push(vendedorArroba)
+          }
+
           await supabase
             .from('venda')
-            .update({ produtos_id: produtosId })
+            .update({
+              produtos_id: produtosId,
+              vendedor_arroba: novoArroba,
+            })
             .eq('comprador_arroba', compradorArroba)
 
           await supabase
@@ -252,7 +283,7 @@ export const actions = {
         .from('venda')
         .insert({
           comprador_arroba: compradorArroba,
-          vendedor_arroba: vendedorArroba,
+          vendedor_arroba: [vendedorArroba],
           produtos_id: [id],
         })
 
@@ -271,6 +302,9 @@ export const actions = {
         .from('venda')
         .select()
         .eq('comprador_arroba', compradorArroba)
+        .neq('finalizada', true);
+
+      commit('newVenda', data[0]);
 
       const { produtos_id: produtosId } = data[0]
 
@@ -280,6 +314,45 @@ export const actions = {
         .in('id', produtosId);
 
       commit('newVendaLocal', produtos);
+    } catch (err) {
+      return true;
+    }
+  },
+
+  async finishVenda({ commit, getters }, { idVenda }) {
+    try {
+      const { getCarrinho } = getters;
+      const itemsQuantidade = []
+
+      for (const item of getCarrinho) {
+        const { user_arroba: userArroba } = item;
+
+        if (itemsQuantidade[userArroba]) {
+          itemsQuantidade[userArroba].quantity++;
+        } else {
+          itemsQuantidade[userArroba] = { arroba: userArroba, quantity: 1 };
+        }
+      }
+
+      await supabase
+        .from('venda')
+        .update({ finalizada: true })
+        .eq('id', idVenda)
+
+      Object.values(itemsQuantidade).forEach(async (item) => {
+        const { data } = await supabase.from('user_public_data').select().eq('arroba', item.arroba);
+        const { qtd_vendidos: qtdVendidos } = data[0];
+
+        const newQuantity = parseInt(qtdVendidos) + parseInt(item.quantity);
+
+        await supabase
+          .from('user_public_data')
+          .update({ qtd_vendidos: newQuantity })
+          .eq('arroba', item.arroba);
+      });
+
+      commit('newVendaLocal', [])
+      commit('newVenda', {})
     } catch (err) {
       return true;
     }
@@ -326,6 +399,10 @@ export const mutations = {
   newVendaLocal(state, data) {
     state.venda_local = data;
   },
+
+  newVenda(state, data) {
+    state.venda = data;
+  },
 }
 
 export const getters = {
@@ -335,4 +412,5 @@ export const getters = {
   getProduto(state) { return state.produto },
   getUserProductsData(state) { return state.user_produtos },
   getCarrinho(state) { return state.venda_local },
+  getVenda(state) { return state.venda },
 }

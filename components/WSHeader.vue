@@ -190,8 +190,8 @@
     },
 
     watch: {
-      async getAuthentication(state, prevState) {
-        if (state.arroba && ! prevState.arroba) {
+      async getAuthentication(state) {
+        if (Object.keys(state)) {
           await this.fetchVenda({ compradorArroba: this.getAuthentication.arroba})
         }
       },
@@ -233,6 +233,8 @@
       },
 
       getItemRoute(item) {
+        this.$refs.dropdownCarrinho.hide(true)
+
         return this.$router.push({ path: `/product/${item.id}` })
       },
 
@@ -279,9 +281,18 @@
       async removeItemFromCart(produto) {
         this.$refs.dropdownCarrinho.hide(true)
 
+        const arrayDeArrobas = this.getCarrinho.map(objeto => objeto.user_arroba)
+        const arrobasSemRepeticao = [...new Set(arrayDeArrobas)];
+        const ocorrencias = arrayDeArrobas.filter(item => item === produto.user_arroba).length
+
+        if (ocorrencias === 1) {
+          arrobasSemRepeticao.splice(arrobasSemRepeticao.indexOf(produto.user_id), 1);
+        }
+
         const error = await this.removeProdutoVenda({
           id: produto.id,
           compradorArroba: this.getAuthentication.arroba,
+          vendedorArroba: arrobasSemRepeticao,
         })
 
         if (! error) {
