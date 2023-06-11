@@ -123,7 +123,7 @@ export const actions = {
         .insert({
           user_arroba: userArroba,
           titulo,
-          preco,
+          preco: parseFloat(preco),
           livro_nome: livroNome,
           editora,
           trocas,
@@ -198,17 +198,25 @@ export const actions = {
         if (produtosId.includes(id)) {
           produtosId.splice(produtosId.indexOf(id), 1);
 
-          await supabase
-            .from('venda')
-            .update({ produtos_id: produtosId })
-            .eq('comprador_arroba', compradorArroba)
-            .single();
+          if (produtosId.length) {
+            await supabase
+              .from('venda')
+              .update({ produtos_id: produtosId })
+              .eq('comprador_arroba', compradorArroba)
+              .single();
+          } else {
+            await supabase
+              .from('venda')
+              .delete()
+              .eq('comprador_arroba', compradorArroba);
+          }
+
+          console.log('chegou aqui ne')
 
           await supabase
             .from('produto')
             .update({ visivel: true })
             .eq('id', id)
-            .single
         }
       }
     } catch (err) {

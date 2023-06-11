@@ -401,7 +401,7 @@
             userArroba: this.getAuthentication.arroba,
             userId: this.getAuthentication.user_id,
             titulo: this.titulo_anuncio,
-            preco: parseInt(this.price_anuncio),
+            preco: parseFloat(this.price_anuncio),
             livroNome: this.titulo_do_livro,
             editora: this.editora,
             trocas: this.trocas,

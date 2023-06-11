@@ -2,9 +2,9 @@
   export default {
     name: 'MiddlewareAuthenticate',
     middleware({ store, redirect }) {
-      const { getters: { getAuthentication } } = store;
+      const user = JSON.parse(localStorage.getItem('sb-ybhmnejynxteqinaedha-auth-token'))
 
-      if (! getAuthentication?.user_id) {
+      if (! user) {
         return redirect('/login')
       }
     },

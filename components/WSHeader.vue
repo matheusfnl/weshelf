@@ -44,8 +44,66 @@
               </label>
             </div>
 
-            <div class="options-icon upscale-animation">
-              <img src="../static/header/bag-icon.svg" />
+            <div class="options-icon upscale-animation bag-icon">
+              <b-dropdown ref="dropdownCarrinho" right size="lg"  variant="link" toggle-class="text-decoration-none" no-caret>
+                <template #button-content>
+                  <img src="../static/header/bag-icon.svg" />
+
+                  <span v-if="getCarrinhoItemsQtd" class="items-quantity-badge">
+                    {{ getCarrinhoItemsQtd  }}
+                  </span>
+                </template>
+
+                <template v-if="getCarrinho.length">
+                  <div class="carrinho-container">
+                    <div v-for="(item, index) in getCarrinho" :key="index" class="item-carrinho">
+                      <div class="item-carrinho-imagem" :style="getProductImage(item)" @click="getItemRoute(item)" />
+
+                      <div class="item-carrinho-info">
+                        <span class="item-carrinho-nome">
+                          {{ item.livro_nome }}
+                        </span>
+
+                        <div class="item-carrinho-options">
+                          <span class="item-carrinho-preco">
+                            R$ {{ item.preco }}
+                          </span>
+
+                          <span class="item-carrinho-remover" @click="removeItemFromCart(item)">
+                            Remover
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr />
+
+                  <div class="item-carrinho-resume">
+                    <div class="resume-total">
+                      <span class="total">
+                        TOTAL:
+                      </span>
+
+                      <span class="total-price">
+                        {{ getTotalVendaPreco }}
+                      </span>
+                    </div>
+
+                    <div class="header-button">
+                      <button class="btn-custom btn-primary btn-text-white" @click="getCompraRoute">
+                        Finalizar compra
+                      </button>
+                    </div>
+                  </div>
+                </template>
+
+                <div v-else class="empty-carrinho">
+                  <span>
+                    Não há nada aqui!
+                  </span>
+                </div>
+              </b-dropdown>
             </div>
 
             <div v-if="hasUser" class="options-icon upscale-animation">
@@ -115,16 +173,53 @@
       hasUser() {
         return !! this.getAuthentication?.user_id
       },
+
+      getCarrinhoItemsQtd() {
+        return this.getCarrinho.length;
+      },
+
+      getTotalVendaPreco() {
+        let totalPreco = 0
+
+        this.getCarrinho.forEach(item => {
+          totalPreco += parseFloat(item.preco);
+        });
+
+        return totalPreco
+      },
+    },
+
+    watch: {
+      async getAuthentication(state, prevState) {
+        if (state.arroba && ! prevState.arroba) {
+          await this.fetchVenda({ compradorArroba: this.getAuthentication.arroba})
+        }
+      },
     },
 
     methods: {
-      ...mapActions(['logoutUser']),
+      ...mapActions([
+        'logoutUser',
+        'fetchVenda',
+        'removeProdutoVenda',
+        'removeProdutoVendaLocal',
+      ]),
+
       publicarClick() {
         if (! this.hasUser) {
           return this.$router.push({ path: '/login' })
         }
 
         this.$router.push({ path: '/announce'})
+      },
+
+      getCompraRoute() {
+        if (! this.hasUser) {
+          return this.$router.push({ path: '/login' })
+        }
+
+        this.$refs.dropdownCarrinho.hide(true)
+        this.$router.push({ path: '/purchase'})
       },
 
       showSearchBar() {
@@ -135,6 +230,10 @@
             this.$refs.searchInput.focus();
           })
         }
+      },
+
+      getItemRoute(item) {
+        return this.$router.push({ path: `/product/${item.id}` })
       },
 
       closeSearchBar() {
@@ -170,6 +269,23 @@
 
         if (! error) {
           this.$router.push({ path: '/login' })
+        }
+      },
+
+      getProductImage(product) {
+        return { backgroundImage: `url(https://ybhmnejynxteqinaedha.supabase.co/storage/v1/object/public/images/${product.images[0]})` };
+      },
+
+      async removeItemFromCart(produto) {
+        this.$refs.dropdownCarrinho.hide(true)
+
+        const error = await this.removeProdutoVenda({
+          id: produto.id,
+          compradorArroba: this.getAuthentication.arroba,
+        })
+
+        if (! error) {
+          this.removeProdutoVendaLocal({ produto })
         }
       },
     },
@@ -284,4 +400,156 @@
   .header-leave-active { transition: opacity 0.1s; }
   .header-enter,
   .header-leave-to { opacity: 0; }
+
+  .bag-icon {
+    position: relative;
+
+    .items-quantity-badge {
+      font-size: 10px;
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: red;
+      display: flex;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      border: 2px solid white;
+      align-items: center;
+      transition: all .3s ease;
+    }
+
+    &:hover {
+      .items-quantity-badge { transform: scale(1.1) }
+    }
+  }
+
+  .empty-carrinho {
+    padding: 0px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;;
+    font-weight: 500;
+    opacity: 0.5;
+  }
+
+  .item-carrinho-resume {
+    padding: 0px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .resume-total {
+      display: flex;
+      gap: 8px;
+
+      .total {
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .total-price {
+        font-size: 16px;
+        color: $primary-orange;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .carrinho-container {
+    padding: 0 10px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .item-carrinho {
+      display: flex;
+
+      &:hover {
+        .item-carrinho-info {
+          .item-carrinho-options {
+            .item-carrinho-remover { opacity: 1; }
+          }
+        }
+      }
+
+      .item-carrinho-imagem {
+        width: 60px;
+        height: 72px;
+        min-width: 60px;
+        background-color: rgb(201, 201, 201);
+        background-position: center;
+        background-size: cover;
+      }
+
+      .item-carrinho-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 100%;
+
+        .item-carrinho-nome {
+          font-size: 14px;
+          font-weight: 500;
+          line-height: 1rem;
+        }
+
+        .item-carrinho-options {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          .item-carrinho-preco {
+            font-size: 14px;
+            color: $primary-orange;
+            font-weight: 500;
+          }
+
+          .item-carrinho-remover {
+            font-size: 12px;
+            color: $clean-red;
+            font-weight: 400;
+            opacity: 0;
+            transition: opacity .3s ease;
+          }
+        }
+      }
+    }
+  }
+
+  .header-button {
+    .btn-custom {
+      width: 120px;
+      height: 28px;
+      border-radius: 15px;
+      border: 0px;
+      transition: all .3s;
+      font-size: 12px;
+    }
+
+    .btn {
+      // Primary
+      &-primary {
+        background-color: $primary-orange;
+        &:hover { background: darken($primary-orange, 5%) }
+        &:focus { box-shadow: 0 0 0 0.2rem rgba($primary-orange, 0.5); }
+        &:active {
+          background-color: $primary-orange !important;
+          &:focus { box-shadow: 0 0 0 0.2rem rgba($primary-orange, 0.5) !important; }
+        }
+        &:focus-visible {
+          outline: 0;
+          box-shadow: 0 0 0 0.2rem rgba($primary-orange, 0.5);
+        }
+      }
+
+      &-text {
+        &-white { color: $light-1; }
+      }
+    }
+  }
 </style>

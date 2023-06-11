@@ -533,7 +533,6 @@
       await this.fetchProduto({ id: this.$route.params.id })
 
       await this.fetchUser(this.getUserArroba)
-      await this.fetchVenda({ compradorArroba: this.getAuthentication.arroba})
 
       this.request_pending = false;
 
@@ -549,7 +548,6 @@
         'fetchUserProducts',
         'addProdutoVendaLocal',
         'addProdutoVenda',
-        'fetchVenda',
       ]),
 
       getUserProfileRoute() {
