@@ -98,7 +98,7 @@ export const actions = {
     return true;
   },
 
-  async createProduto(context, {
+  async createProduto({ commit, getters }, {
     userArroba,
     titulo,
     preco,
@@ -112,6 +112,8 @@ export const actions = {
     descricao,
     images,
     userId,
+    prateleira,
+    criarPreteleira,
   }) {
     try {
       const imagesNames = [];
@@ -142,17 +144,39 @@ export const actions = {
           raridade,
           descricao,
           images: imagesNames,
+          prateleira,
         })
         .select()
 
       const { data } = await supabase.from('user_public_data').select().eq('arroba', userArroba)
-      const { qtd_anuncios: qtdAnuncios } = data[0];
+      const {
+        qtd_anuncios: qtdAnuncios,
+        prateleiras,
+      } = data[0];
       const newQuantity = qtdAnuncios + 1;
+
+      const novaPrateleira = prateleiras || []
+
+      if (criarPreteleira && prateleira) {
+        if (! novaPrateleira.includes(prateleira)) {
+          novaPrateleira.push(prateleira);
+        }
+      }
 
       await supabase
         .from('user_public_data')
-        .update({ qtd_anuncios: newQuantity })
+        .update({
+          qtd_anuncios: newQuantity,
+          prateleiras: novaPrateleira,
+        })
         .eq('arroba', userArroba);
+
+      const { getAuthentication } = getters
+
+      commit('newAuthentication', {
+        ...getAuthentication,
+        prateleiras: novaPrateleira,
+      })
 
       return {
         ...response.data[0],
@@ -353,6 +377,23 @@ export const actions = {
 
       commit('newVendaLocal', [])
       commit('newVenda', {})
+    } catch (err) {
+      return true;
+    }
+  },
+
+  async createBarganha(context, { compradorArroba, vendedorArroba, produtoIdOferecido, produtoIdRequirido, mensagem }) {
+    try {
+      await supabase
+        .from('barganha')
+        .insert({
+          comprador_arroba: compradorArroba,
+          vendedor_arroba: vendedorArroba,
+          produto_id_oferecido: produtoIdOferecido,
+          produto_id_requirido: produtoIdRequirido,
+          mensagem,
+        })
+
     } catch (err) {
       return true;
     }

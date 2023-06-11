@@ -82,18 +82,21 @@
         </div>
 
         <div class="get-container mb-4">
-          <Appbutton
-            color="primary-yellow"
-            class="w-100"
-            bold
-            :disabled="getIsMyProduct || getIsOnCart"
-            :request_pending="add_produto_request_pending"
-            @click="getPurchaseRoute"
-          >
-            eu quero comprar
-          </Appbutton>
+          <div class="compra-button-container">
+            <AppButton
+              color="primary-yellow"
+              class="w-100"
+              bold
+              :disabled="getIsMyProduct || getIsOnCart"
+              :request_pending="add_produto_request_pending"
+              @click="getPurchaseRoute"
+            >
+              eu quero comprar
+            </AppButton>
+          </div>
 
-          <Appbutton
+          <AppButton
+            v-if="getAceitaBarganha"
             bold
             color="orange"
             class="w-100"
@@ -101,16 +104,16 @@
             @click="barganharClick"
           >
             eu vim barganhar
-          </Appbutton>
+          </AppButton>
 
-          <Appbutton
+          <AppButton
             bold
             color="orange"
             :disabled="getIsMyProduct"
             @click="wishlistClick"
           >
             <img class="wishlist-icon" :src="wishlistIcon" />
-          </Appbutton>
+          </AppButton>
         </div>
 
         <div class="original-description-container mb-4">
@@ -306,9 +309,9 @@
               </div>
             </template>
 
-            <template v-else-if="getUserProductsData.length">
+            <template v-else-if="getUserProductsDataVisible.length">
               <div
-                v-for="(seller_product, index) in getUserProductsData"
+                v-for="(seller_product, index) in getUserProductsDataVisible"
                 :key="index"
                 class="item-to-select"
                 :class="{ 'selected' : selected_item === index }"
@@ -338,12 +341,19 @@
             Você receberá uma resposta em até 4 dias.
           </p>
 
-          <InputTextArea
-            id="textArea"
-            placeholder="opcional, mas aqui você pode explicar melhor a sua oferta :)"
-            :value="barganha_text"
-            @model="barganha_text = $event"
-          />
+          <div class="send-container">
+            <InputTextArea
+              id="textArea"
+              class="text-area"
+              placeholder="opcional, mas aqui você pode explicar melhor a sua oferta :)"
+              :value="barganha_text"
+              @model="barganha_text = $event"
+            />
+
+            <AppButton class="send-barganha-button" bold @click="enviarBarganha">
+              <img class="send-barganha" :src="sendIcon" />
+            </AppButton>
+          </div>
         </div>
       </div>
     </transition>
@@ -355,16 +365,17 @@
 
   import { mapGetters, mapActions } from 'vuex';
 
-  import Appbutton from '../../components/inputs/AppButton.vue'
+  import AppButton from '../../components/inputs/AppButton.vue'
   import InputTextArea from '../../components/inputs/InputTextArea.vue'
 
   import wishlistIcon from '../../static/utils/wishlist.png';
   import securityIcon from '../../static/utils/security.png';
+  import sendIcon from '../../static/utils/send.png';
 
   export default {
     name: 'ProductPage',
     components: {
-      Appbutton,
+      AppButton,
       InputTextArea,
       MoonLoader,
     },
@@ -372,6 +383,7 @@
     data() {
       return {
         wishlistIcon,
+        sendIcon,
         securityIcon,
         selected_image: 0,
         should_show_modal: false,
@@ -402,6 +414,10 @@
         const { livro_nome: livroNome = '' } = this.getProduto || {};
 
         return livroNome;
+      },
+
+      getUserProductsDataVisible() {
+        return this.getUserProductsData.filter(item => item.visivel)
       },
 
       getBookCondicao() {
@@ -514,6 +530,12 @@
         return images;
       },
 
+      getAceitaBarganha() {
+        const { trocas = false } = this.getProduto || {};
+
+        return trocas;
+      },
+
       getSelectedImage() {
         return this.getImageUrl(this.getProductImages[this.selected_image]);
       },
@@ -548,6 +570,7 @@
         'fetchUserProducts',
         'addProdutoVendaLocal',
         'addProdutoVenda',
+        'createBarganha',
       ]),
 
       getUserProfileRoute() {
@@ -561,7 +584,7 @@
         this.selected_image = index;
       },
 
-      barganharClick() {
+      async barganharClick() {
         if (! this.getAuthentication?.user_id) {
           return this.$router.push({ path: '/login' })
         }
@@ -571,7 +594,7 @@
         if (!this.getUserProductsData.length) {
           this.products_request_pending = true;
 
-          this.fetchUserProducts({ arroba: this.getAuthentication.arroba });
+          await this.fetchUserProducts({ arroba: this.getAuthentication.arroba });
 
           this.products_request_pending = false;
         }
@@ -617,6 +640,20 @@
           }
 
           this.add_produto_request_pending = false
+        }
+      },
+
+      async enviarBarganha() {
+        if (this.selected_item !== -1) {
+          await this.createBarganha({
+            compradorArroba: this.getAuthentication.arroba,
+            vendedorArroba: this.getProduto.user_arroba,
+            produtoIdOferecido: this.getUserProductsData[this.selected_item].id,
+            produtoIdRequirido: this.getProduto.id,
+            mensagem: this.barganha_text,
+          })
+
+          this.should_show_modal = false;
         }
       },
     },
@@ -720,6 +757,7 @@
       display: flex;
       gap: 12px;
 
+      .compra-button-container { min-width: 45%; }
       .wishlist-icon {
         width: 26px;
         height: 26px;
@@ -968,4 +1006,24 @@
   .modal-enter,
   .modal-leave-to { opacity: 0; }
   .no-shelf { opacity: .5 }
+  .text-area {
+    min-width: 90%;
+  }
+  .send-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+
+    .send-barganha-button {
+      min-width: 0px !important;
+      min-height: 0px !important;
+
+      .send-barganha {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
 </style>

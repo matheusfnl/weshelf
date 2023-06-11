@@ -154,6 +154,38 @@
           </label>
         </div>
 
+        <div class="checkbox-container" :class="{ 'half-container' : ! usuarioTemPrateleiras }">
+          <template v-if="criar_prateleira || ! usuarioTemPrateleiras">
+            <InputText
+              id="praleieraCriar"
+              label="PRATELEIRA"
+              placeholder="nome da preteleira"
+              :value="prateleira"
+              @model="prateleira = $event"
+            />
+          </template>
+
+          <template v-else>
+            <InputSelect
+              id="prateleira"
+              label="PRATELEIRA"
+              class="mb-3"
+              default_label="selecione..."
+              :default_disabled="false"
+              :default_hidden="false"
+              :options="getPrateleiras"
+              @model="prateleira = $event"
+            />
+          </template>
+
+          <label v-if="usuarioTemPrateleiras" class="rarity checkbox-label">
+            <input v-model="criar_prateleira" type="checkbox" @change="prateleira = ''" />
+            <span class="checkbox-text rarity-container">
+              Criar prateleira
+            </span>
+          </label>
+        </div>
+
         <div class="description-container">
           <InputTextArea
             id="descricaoLivro"
@@ -221,9 +253,11 @@
         descricao: '',
         edicao: '',
         isbn: '',
+        prateleira: '',
         infoIcon,
         addImageIcon,
         uploaded_images: [],
+        criar_prateleira: true,
         trocas: false,
         raridade: false,
         doacao: false,
@@ -284,6 +318,22 @@
         ];
       },
 
+      getPrateleiras() {
+        const { prateleiras } = this.getAuthentication;
+        const minhasPrateleiras = prateleiras || []
+
+        const options = []
+
+        minhasPrateleiras.forEach(prateleira => {
+          options.push({
+            label: prateleira,
+            value: prateleira,
+          })
+        });
+
+        return options;
+      },
+
       getBookConservationOptions() {
         return [
           {
@@ -327,6 +377,16 @@
         }
 
         return this.validate?.errors?.items.length === 0;
+      },
+
+      usuarioTemPrateleiras() {
+        const { prateleiras = [] } = this.getAuthentication
+
+        if (prateleiras === null) {
+          return false
+        }
+
+        return prateleiras.length
       },
     },
 
@@ -410,6 +470,8 @@
             raridade: this.raridade,
             descricao: this.descricao,
             images: this.unformatted_images,
+            prateleira: this.prateleira,
+            criarPreteleira: this.criar_prateleira,
           })
 
           if (! response.error) {
@@ -617,5 +679,10 @@
     top: -24px;
     font-size: 12px;
     color: $clean-red;
+  }
+
+  .half-container {
+    width: 50%;
+    padding-right: 12px;
   }
 </style>
