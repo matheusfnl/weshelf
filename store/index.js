@@ -382,15 +382,15 @@ export const actions = {
     }
   },
 
-  async createBarganha(context, { compradorArroba, vendedorArroba, produtoIdOferecido, produtoIdRequirido, mensagem }) {
+  async createBarganha(context, { compradorArroba, vendedorArroba, produtoOferecido, produtoRequerido, mensagem }) {
     try {
       await supabase
         .from('barganha')
         .insert({
           comprador_arroba: compradorArroba,
           vendedor_arroba: vendedorArroba,
-          produto_id_oferecido: produtoIdOferecido,
-          produto_id_requirido: produtoIdRequirido,
+          produto_oferecido: produtoOferecido,
+          produto_requerido: produtoRequerido,
           mensagem,
         })
 

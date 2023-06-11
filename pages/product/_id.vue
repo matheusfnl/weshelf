@@ -648,8 +648,18 @@
           await this.createBarganha({
             compradorArroba: this.getAuthentication.arroba,
             vendedorArroba: this.getProduto.user_arroba,
-            produtoIdOferecido: this.getUserProductsData[this.selected_item].id,
-            produtoIdRequirido: this.getProduto.id,
+            produtoOferecido: {
+              id: this.getUserProductsData[this.selected_item].id,
+              image: this.getUserProductsData[this.selected_item].images[0],
+              arroba: this.getUserProductsData[this.selected_item].user_arroba,
+              livro_nome: this.getUserProductsData[this.selected_item].livro_nome,
+            },
+            produtoRequerido: {
+              id: this.getProduto.id,
+              image: this.getProduto.images[0],
+              arroba: this.getProduto.user_arroba,
+              livro_nome: this.getProduto.livro_nome,
+            },
             mensagem: this.barganha_text,
           })
 
