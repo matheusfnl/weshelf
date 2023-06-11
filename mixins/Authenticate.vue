@@ -4,7 +4,7 @@
     middleware({ store, redirect }) {
       const user = JSON.parse(localStorage.getItem('sb-ybhmnejynxteqinaedha-auth-token'))
 
-      if (! user) {
+      if (! user.user.id) {
         return redirect('/login')
       }
     },
