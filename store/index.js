@@ -7,6 +7,7 @@ export const state = () => ({
   catalogo_produtos: [],
   produto: {},
   user_produtos: [],
+  venda_local: [],
 })
 
 export const actions = {
@@ -148,6 +149,7 @@ export const actions = {
     const { data, error } = await supabase
       .from('produto')
       .select()
+      .eq('visivel', true)
       // .textSearch('titulo', search ? estado : undefined)
       // .eq('estado', estado !== '' ? estado : undefined)
       // .eq('genero', genero !== '' ? genero : undefined)
@@ -185,6 +187,103 @@ export const actions = {
 
     return true;
   },
+
+  async removeProdutoVenda(context, { id, compradorArroba }) {
+    try {
+      const { data: oldData } = await supabase.from('venda').select().eq('comprador_arroba', compradorArroba);
+
+      if (oldData.length) {
+        const { produtos_id: produtosId } = oldData[0];
+
+        if (produtosId.includes(id)) {
+          produtosId.splice(produtosId.indexOf(id), 1);
+
+          await supabase
+            .from('venda')
+            .update({ produtos_id: produtosId })
+            .eq('comprador_arroba', compradorArroba)
+            .single();
+
+          await supabase
+            .from('produto')
+            .update({ visivel: true })
+            .eq('id', id)
+            .single
+        }
+      }
+    } catch (err) {
+      return true
+    }
+  },
+
+  async addProdutoVenda(context, { id, vendedorArroba, compradorArroba }) {
+    try {
+      const { data: oldData } = await supabase.from('venda').select().eq('comprador_arroba', compradorArroba);
+
+      if (oldData.length) {
+        const { produtos_id: produtosId } = oldData[0];
+
+        if (! produtosId.includes(id)) {
+          produtosId.push(id);
+
+          await supabase
+            .from('venda')
+            .update({ produtos_id: produtosId })
+            .eq('comprador_arroba', compradorArroba)
+
+          await supabase
+            .from('produto')
+            .update({ visivel: false })
+            .eq('id', id)
+        }
+
+        return;
+      }
+
+      await supabase
+        .from('venda')
+        .insert({
+          comprador_arroba: compradorArroba,
+          vendedor_arroba: vendedorArroba,
+          produtos_id: [id],
+        })
+
+      await supabase
+        .from('produto')
+        .update({ visivel: false })
+        .eq('id', id)
+    } catch (err) {
+      return true
+    }
+  },
+
+  async fetchVenda({ commit }, { compradorArroba }) {
+    try {
+      const { data } = await supabase
+        .from('venda')
+        .select()
+        .eq('comprador_arroba', compradorArroba)
+
+      const { produtos_id: produtosId } = data[0]
+
+      const { data: produtos } = await supabase
+        .from('produto')
+        .select()
+        .in('id', produtosId);
+
+      commit('newVendaLocal', produtos);
+    } catch (err) {
+      return true;
+    }
+  },
+
+  addProdutoVendaLocal({ commit }, { produto }) {
+    commit('newAddProdutoVendaLocal', produto)
+  },
+
+  removeProdutoVendaLocal({ commit }, { produto }) {
+    commit('newRemoveProdutoVendaLocal', produto.id)
+  },
 }
 
 export const mutations = {
@@ -207,6 +306,18 @@ export const mutations = {
   newUserProducts(state, data) {
     state.user_produtos = data;
   },
+
+  newAddProdutoVendaLocal(state, data) {
+    state.venda_local.push(data);
+  },
+
+  newRemoveProdutoVendaLocal(state, data) {
+    state.venda_local.splice(state.venda_local.findIndex(objeto => objeto.id === data), 1);
+  },
+
+  newVendaLocal(state, data) {
+    state.venda_local = data;
+  },
 }
 
 export const getters = {
@@ -215,4 +326,5 @@ export const getters = {
   getCatalogoProdutos(state) { return state.catalogo_produtos },
   getProduto(state) { return state.produto },
   getUserProductsData(state) { return state.user_produtos },
+  getCarrinho(state) { return state.venda_local },
 }

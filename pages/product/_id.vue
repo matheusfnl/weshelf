@@ -86,6 +86,8 @@
             color="primary-yellow"
             class="w-100"
             bold
+            :disabled="getIsMyProduct || getIsOnCart"
+            :request_pending="add_produto_request_pending"
             @click="getPurchaseRoute"
           >
             eu quero comprar
@@ -95,6 +97,7 @@
             bold
             color="orange"
             class="w-100"
+            :disabled="getIsMyProduct"
             @click="barganharClick"
           >
             eu vim barganhar
@@ -103,6 +106,7 @@
           <Appbutton
             bold
             color="orange"
+            :disabled="getIsMyProduct"
             @click="wishlistClick"
           >
             <img class="wishlist-icon" :src="wishlistIcon" />
@@ -375,6 +379,7 @@
         selected_item: -1,
         request_pending: false,
         products_request_pending: false,
+        add_produto_request_pending: false,
       }
     },
 
@@ -384,6 +389,7 @@
         'getProduto',
         'getUser',
         'getUserProductsData',
+        'getCarrinho',
       ]),
 
       getBookTitle() {
@@ -511,6 +517,14 @@
       getSelectedImage() {
         return this.getImageUrl(this.getProductImages[this.selected_image]);
       },
+
+      getIsMyProduct() {
+        return this.getProduto.user_arroba === this.getAuthentication.arroba;
+      },
+
+      getIsOnCart() {
+        return this.getCarrinho.some(produto => produto.id === this.getProduto.id)
+      },
     },
 
     async mounted() {
@@ -519,8 +533,13 @@
       await this.fetchProduto({ id: this.$route.params.id })
 
       await this.fetchUser(this.getUserArroba)
+      await this.fetchVenda({ compradorArroba: this.getAuthentication.arroba})
 
       this.request_pending = false;
+
+      if (! this.getProduto.id) {
+        this.$router.push({ path: '/search' })
+      }
     },
 
     methods: {
@@ -528,6 +547,9 @@
         'fetchProduto',
         'fetchUser',
         'fetchUserProducts',
+        'addProdutoVendaLocal',
+        'addProdutoVenda',
+        'fetchVenda',
       ]),
 
       getUserProfileRoute() {
@@ -582,10 +604,22 @@
         return `https://ybhmnejynxteqinaedha.supabase.co/storage/v1/object/public/images/${image}`;
       },
 
-      getPurchaseRoute() {
-        this.$router.push({
-          path: '/purchase',
-        })
+      async getPurchaseRoute() {
+        if (! this.getCarrinho.some(produto => produto.id === this.getProduto.id)) {
+          this.add_produto_request_pending = true
+
+          const error = await this.addProdutoVenda({
+            id: this.getProduto.id,
+            vendedorArroba: this.getProduto.user_arroba,
+            compradorArroba: this.getAuthentication.arroba,
+          })
+
+          if (! error) {
+            this.addProdutoVendaLocal({ produto: this.getProduto })
+          }
+
+          this.add_produto_request_pending = false
+        }
       },
     },
   }

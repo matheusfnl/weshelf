@@ -7,6 +7,7 @@
       getBtnColor,
       getBtnShape,
       getBtnWeight,
+      { 'disabled-button' : getBtnDisabled },
     ]"
     :disabled="getBtnDisabled"
     @click="$emit('click', $event)"
@@ -227,4 +228,6 @@
     align-items: center;
     max-height: 100%;
   }
+
+  .disabled-button { opacity: .5 }
 </style>

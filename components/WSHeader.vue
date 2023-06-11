@@ -99,7 +99,11 @@
     },
 
     computed: {
-      ...mapGetters(['getAuthentication']),
+      ...mapGetters([
+        'getAuthentication',
+        'getCarrinho',
+      ]),
+
       shouldShowHeader() {
         return ! [
           'login',
