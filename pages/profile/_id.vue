@@ -43,10 +43,11 @@
                   <div
                     class="book-image"
                     :style="{ backgroundImage: `url(${getImageUrl(barganha.produto_requerido.image)})` }"
+                    @click="getProductRoute(barganha.produto_requerido)"
                   />
 
                   <div class="book-info">
-                    <span class="status">{{ getStatus(barganha) }}</span>
+                    <span class="status" :class="getStatusColor(barganha)">{{ getStatus(barganha) }}</span>
 
                     <span class="barganha-name">{{ getBarganhaName(barganha) }}</span>
                     <span class="barganha-profile">@{{ getBarganhaProfile(barganha) }}</span>
@@ -54,7 +55,17 @@
                       você ofereceu: <b>{{ getBarganhaBook(barganha) }}</b>
                     </span>
 
-                    <span class="date">atualizado em {{ getBarganhaDate(barganha) }}</span>
+                    <div class="buttons-container">
+                      <span class="date">atualizado em {{ getBarganhaDate(barganha) }}</span>
+
+                      <div class="offer-buttons">
+                        <template v-if="barganha.status === 'waiting_payment' && ! barganha.comprador_pago">
+                          <button class="btn-custom-success btn-success btn-text-white" @click="pagarProposta(barganha)">
+                            realizar pagamento
+                          </button>
+                        </template>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </template>
@@ -86,10 +97,11 @@
                   <div
                     class="book-image"
                     :style="{ backgroundImage: `url(${getImageUrl(proposta.produto_requerido.image)})` }"
+                    @click="getProductRoute(proposta.produto_requerido)"
                   />
 
                   <div class="book-info">
-                    <span class="status">{{ getStatus(proposta) }}</span>
+                    <span class="status" :class="getStatusColor(proposta)">{{ getStatus(proposta) }}</span>
 
                     <span class="propostas-name">{{ getBarganhaName(proposta) }}</span>
                     <span class="propostas-profile">@{{ getBarganhaProfile(proposta) }}</span>
@@ -97,7 +109,27 @@
                       pessoa ofereceu: <b>{{ getBarganhaBook(proposta) }}</b>
                     </span>
 
-                    <span class="date">atualizado em {{ getBarganhaDate(proposta) }}</span>
+                    <div class="buttons-container">
+                      <span class="date">atualizado em {{ getBarganhaDate(proposta) }}</span>
+
+                      <div class="offer-buttons">
+                        <template v-if="(proposta.status !== 'waiting_payment' && proposta.status !== 'finished')">
+                          <button class="btn-custom btn-primary btn-text-white" @click="aceitarProposta(proposta.id, index)">
+                            aceitar
+                          </button>
+
+                          <button class="btn-custom btn-danger btn-text-white" @click="recusarProposta(proposta.id)">
+                            recusar
+                          </button>
+                        </template>
+
+                        <template v-else-if="proposta.status === 'waiting_payment' && ! proposta.vendedor_pago">
+                          <button class="btn-custom-success btn-success btn-text-white" @click="pagarProposta(proposta)">
+                            realizar pagamento
+                          </button>
+                        </template>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </template>
@@ -137,6 +169,7 @@
                       :style="{ backgroundImage: `url(${getImageUrl(produto.images[0])})` }"
                       class="shelf-book-card"
                       :class="{'last-one' : book_index === 2 }"
+                      @click="getProductRoute(produto)"
                     />
                   </div>
                 </div>
@@ -159,8 +192,14 @@
                 :key="index"
                 class="wishlist-card"
                 :style="{ backgroundImage: `url(${getImageUrl(item.imagem)})` }"
-                @click="getProductRoute"
+                @click="getProductRoute(item)"
               />
+            </div>
+
+            <div v-else>
+              <div class="w-100 d-flex justify-content-center py-3 empty-wishlist">
+                Não há nada na sua wishlist!
+              </div>
             </div>
           </div>
         </div>
@@ -486,6 +525,11 @@
         'fetchMinhasBarganhas',
         'fetchMinhasPropostas',
         'fetchUserProducts',
+        'deleteBarganha',
+        'changeBarganhaStatus',
+        'addVendaLocal',
+        'addBarganhaCompra',
+        'deleteVenda',
       ]),
 
       getStatus(barganha) {
@@ -493,16 +537,28 @@
           return 'aguardando resposta'
         }
 
-        if (barganha.status === 'refused') {
-          return 'recusada'
+        if (barganha.status === 'waiting_payment') {
+          return 'Aguardando pagamentos'
         }
 
-        if (barganha.status === 'waiting_payment_self') {
-          return 'Aguardando seu pagamento'
+        if (barganha.status === 'finished') {
+          return 'Finalizada'
         }
 
-        if (barganha.status === 'waiting_payment_other') {
-          return 'Aguardando pagamento do vendedor'
+        return ''
+      },
+
+      getStatusColor(barganha) {
+        if (barganha.status === 'waiting') {
+          return 'color-yellow'
+        }
+
+        if (barganha.status === 'waiting_payment') {
+          return 'color-red'
+        }
+
+        if (barganha.status === 'finished') {
+          return 'color-green'
         }
 
         return ''
@@ -553,6 +609,39 @@
         }
 
         return 'outros'
+      },
+
+      async recusarProposta(id) {
+        const error = await this.deleteBarganha({ id })
+
+        if (! error) {
+          this.propostas = this.propostas.filter(proposta => proposta.id !== id);
+        }
+      },
+
+      async aceitarProposta(id, index) {
+        await this.changeBarganhaStatus({ id, status: 'waiting_payment' })
+        this.propostas[index].status = 'waiting_payment'
+      },
+
+      async pagarProposta(proposta) {
+        const {
+          produto_oferecido: produtoOferecido,
+          produto_requerido: produtoRequerido,
+        } = proposta;
+
+        await this.deleteVenda({ compradorArroba: this.getAuthentication.arroba })
+
+        if (produtoOferecido.arroba === this.getAuthentication.arroba) {
+          await this.addVendaLocal({ id: produtoRequerido.id })
+        }
+        else {
+          await this.addVendaLocal({ id: produtoOferecido.id })
+        }
+
+        await this.addBarganhaCompra(proposta)
+
+        return this.$router.push({ path: '/purchase'})
       },
     },
   }
@@ -679,6 +768,7 @@
           background-position: center;
           background-size: cover;
           position: relative;
+          cursor: pointer;
 
           &.last-one::before {
             content: "";
@@ -756,11 +846,13 @@
           border-radius: 3px;
           background-position: center;
           background-size: cover;
+          cursor: pointer;
         }
 
         .book-info {
           display: flex;
           flex-direction: column;
+          width: 100%;
 
           .status {
             color: #DE4B28;
@@ -784,12 +876,91 @@
           .offer {
             font-size: 12px;
             color: #777777;
-            margin-bottom: 12px;
           }
 
           .date {
             font-size: 8px;
             color: #AAAAAA;
+          }
+
+          .buttons-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            height: 100%;
+
+            .offer-buttons {
+              .btn-custom {
+                width: 60px;
+                height: 28px;
+                border-radius: 15px;
+                border: 0px;
+                transition: all .3s;
+                font-size: 12px;
+              }
+
+              .btn-custom-success {
+                width: 140px;
+                height: 28px;
+                border-radius: 15px;
+                border: 0px;
+                transition: all .3s;
+                font-size: 12px;
+              }
+
+              .btn {
+                // Primary
+                &-primary {
+                  background-color: $primary-orange;
+                  &:hover { background: darken($primary-orange, 5%) }
+                  &:focus { box-shadow: 0 0 0 0.2rem rgba($primary-orange, 0.5); }
+                  &:active {
+                    background-color: $primary-orange !important;
+                    &:focus { box-shadow: 0 0 0 0.2rem rgba($primary-orange, 0.5) !important; }
+                  }
+                  &:focus-visible {
+                    outline: 0;
+                    box-shadow: 0 0 0 0.2rem rgba($primary-orange, 0.5);
+                  }
+                }
+
+                &-danger {
+                  background-color: $clean-red;
+                  &:hover { background: darken($clean-red, 5%) }
+                  &:focus { box-shadow: 0 0 0 0.2rem rgba($clean-red, 0.5); }
+                  &:active {
+                    background-color: $clean-red !important;
+                    &:focus { box-shadow: 0 0 0 0.2rem rgba($clean-red, 0.5) !important; }
+                  }
+                  &:focus-visible {
+                    outline: 0;
+                    box-shadow: 0 0 0 0.2rem rgba($clean-red, 0.5);
+                  }
+                }
+
+                &-text {
+                  &-white { color: $light-1; }
+                }
+
+                &-success {
+                  background-color: $baby-green;
+                  &:hover { background: darken($baby-green, 5%) }
+                  &:focus { box-shadow: 0 0 0 0.2rem rgba($baby-green, 0.5); }
+                  &:active {
+                    background-color: $baby-green !important;
+                    &:focus { box-shadow: 0 0 0 0.2rem rgba($baby-green, 0.5) !important; }
+                  }
+                  &:focus-visible {
+                    outline: 0;
+                    box-shadow: 0 0 0 0.2rem rgba($baby-green, 0.5);
+                  }
+                }
+
+                &-text {
+                  &-white { color: $light-1; }
+                }
+              }
+            }
           }
         }
       }
@@ -894,8 +1065,14 @@
     opacity: .4;
   }
 
-  .empty-prateleira {
+  .empty-prateleira, .empty-wishlist {
     color: rgb(189, 189, 189);
     font-size: 12px;
+  }
+
+  .color {
+    &-yellow { color: $light-yellow !important }
+    &-red { color: $clean-red !important }
+    &-green { color: $baby-green !important }
   }
 </style>

@@ -9,6 +9,7 @@ export const state = () => ({
   user_produtos: [],
   venda_local: [],
   venda: {},
+  barganha_compra: {},
 })
 
 export const actions = {
@@ -267,9 +268,15 @@ export const actions = {
     }
   },
 
-  async addProdutoVenda(context, { id, vendedorArroba, compradorArroba }) {
+  async addProdutoVenda({ getters, commit }, { id, vendedorArroba, compradorArroba }) {
     try {
       const { data: oldData } = await supabase.from('venda').select().eq('comprador_arroba', compradorArroba).neq('finalizada', true);
+      const { getCarrinho } = getters
+
+      if (getCarrinho.length && getCarrinho[0].barganha) {
+        commit('newVendaLocal', [])
+        commit('newBarganhaCompra', {})
+      }
 
       if (oldData.length) {
         const {
@@ -382,6 +389,17 @@ export const actions = {
     }
   },
 
+  async deleteVenda({ commit }, { compradorArroba }) {
+    try {
+      await supabase
+      .from('venda')
+      .delete()
+      .eq('comprador_arroba', compradorArroba);
+    } catch (err) {
+      return true;
+    }
+  },
+
   async createBarganha(context, { compradorArroba, vendedorArroba, produtoOferecido, produtoRequerido, mensagem }) {
     try {
       await supabase
@@ -469,6 +487,118 @@ export const actions = {
     }
   },
 
+  async deleteBarganha(context, { id }) {
+    try {
+      await supabase
+        .from('barganha')
+        .delete()
+        .eq('id', id);
+    } catch (err) {
+      return true
+    }
+  },
+
+  async changeBarganhaStatus(context, { id, status }) {
+    try {
+      await supabase
+        .from('barganha')
+        .update({ status })
+        .eq('id', id);
+    } catch (err) {
+      return true
+    }
+  },
+
+  async payBarganha({ getters, commit }) {
+    try {
+      let field = {}
+
+      const {
+        getBarganhaCompra,
+        getAuthentication,
+      } = getters
+
+      const {
+        produto_oferecido: produtoOferecido,
+        produto_requerido: produtoRequerido,
+        id,
+        comprador_pago: compradorPago,
+        vendedor_pago: vendedorPago,
+      } = getBarganhaCompra;
+
+      if (produtoOferecido.arroba === getAuthentication.arroba) {
+        if (vendedorPago) {
+          field = {
+            'comprador_pago': true,
+            'status': 'finished',
+          }
+
+          await supabase
+            .from('produto')
+            .update({ visivel: false })
+            .eq('id', produtoOferecido.id)
+
+          await supabase
+            .from('produto')
+            .update({ visivel: false })
+            .eq('id', produtoRequerido.id)
+        }
+        else {
+          field = {'comprador_pago': true}
+        }
+      }
+      else if (compradorPago) {
+        field = {
+          'vendedor_pago': true,
+          'status': 'finished',
+        }
+
+        await supabase
+          .from('produto')
+          .update({ visivel: false })
+          .eq('id', produtoOferecido.id)
+
+        await supabase
+          .from('produto')
+          .update({ visivel: false })
+          .eq('id', produtoRequerido.id)
+      } else {
+        field = {'vendedor_pago': true}
+      }
+
+      await supabase
+        .from('barganha')
+        .update(field)
+        .eq('id', id);
+
+      commit('newVendaLocal', [])
+      commit('newVenda', {})
+    } catch (err) {
+      return true
+    }
+  },
+
+  async addVendaLocal({ commit }, { id }) {
+    try {
+      const { data } = await supabase
+        .from('produto')
+        .select()
+        .eq('id', id);
+
+      commit('newVendaLocal', [{
+        ...data[0],
+        barganha: true,
+        preco: 0,
+      }])
+    } catch (err) {
+      return true;
+    }
+  },
+
+  addBarganhaCompra({ commit }, data) {
+    commit('newBarganhaCompra', data)
+  },
+
   addProdutoVendaLocal({ commit }, { produto }) {
     commit('newAddProdutoVendaLocal', produto)
   },
@@ -485,6 +615,10 @@ export const mutations = {
 
   newUser(state, data) {
     state.user = data;
+  },
+
+  newBarganhaCompra(state, data) {
+    state.barganha_compra = data;
   },
 
   newCatalogoProdutos(state, data) {
@@ -524,4 +658,5 @@ export const getters = {
   getUserProductsData(state) { return state.user_produtos },
   getCarrinho(state) { return state.venda_local },
   getVenda(state) { return state.venda },
+  getBarganhaCompra(state) { return state.barganha_compra },
 }

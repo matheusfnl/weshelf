@@ -221,7 +221,7 @@
             <div class="container-part">
               <div class="rating-container item description-part">
                 <div class="stars">
-                  * * * * *
+                  <img class="rating-start" :src="ratingStar" />
                 </div>
 
                 <span class="rating-quantity">
@@ -373,6 +373,7 @@
   import wishlistRemoveIcon from '../../static/utils/wishlist-remove.png';
   import securityIcon from '../../static/utils/security.png';
   import sendIcon from '../../static/utils/send.png';
+  import ratingStar from '../../static/utils/rating-star.png'
 
   export default {
     name: 'ProductPage',
@@ -384,6 +385,7 @@
 
     data() {
       return {
+        ratingStar,
         wishlistIcon,
         wishlistRemoveIcon,
         sendIcon,
@@ -545,11 +547,19 @@
       },
 
       getIsMyProduct() {
-        return this.getProduto.user_arroba === this.getAuthentication.arroba;
+        if (this.getProduto?.user_arroba && this.getAuthentication?.arroba) {
+          return this.getProduto.user_arroba === this.getAuthentication.arroba;
+        }
+
+        return false;
       },
 
       getIsOnCart() {
-        return this.getCarrinho.some(produto => produto.id === this.getProduto.id)
+        if (this.getCarrinho?.id) {
+          return this.getCarrinho.some(produto => produto.id === this.getProduto.id)
+        }
+
+        return false;
       },
 
       getWishlistIcon() {
@@ -582,6 +592,12 @@
       await this.fetchUser(this.getUserArroba)
 
       this.request_pending = false;
+
+      this.products_request_pending = true;
+
+      await this.fetchUserProducts({ arroba: this.getAuthentication.arroba });
+
+      this.products_request_pending = false;
 
       if (! this.getProduto.id) {
         this.$router.push({ path: '/search' })
@@ -1073,5 +1089,10 @@
         height: 24px;
       }
     }
+  }
+
+  .rating-start {
+    width: 14px;
+    height: 14px;
   }
 </style>

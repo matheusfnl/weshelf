@@ -457,9 +457,9 @@
           align-items: center;
         }
 
-        .badge-blue { background-color: rgba(159, 253, 255, 0.5) }
+        .badge-blue { background-color: $brown }
 
-        .badge-green { background-color: rgba(183, 255, 124, 0.5) }
+        .badge-green { background-color: $primary-yellow }
       }
 
       .item-image {

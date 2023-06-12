@@ -519,6 +519,7 @@
         'getCarrinho',
         'getAuthentication',
         'getVenda',
+        'getBarganhaCompra',
       ]),
 
       getTotalVendaPreco() {
@@ -528,7 +529,7 @@
           totalPreco += parseFloat(item.preco);
         });
 
-        return parseFloat(totalPreco)
+        return this.formatDoisDecimais(parseFloat(totalPreco))
       },
 
       getFrete() {
@@ -649,6 +650,7 @@
         'removeProdutoVenda',
         'finishVenda',
         'fetchVenda',
+        'payBarganha',
       ]),
 
       async finalizarCompra() {
@@ -658,9 +660,23 @@
         await this.validate.validate('phone', this.telefone);
 
         if (this.checkCanFinish) {
+          if (! this.getBarganhaCompra?.id) {
+            this.compra_request_pending = true;
+
+            const error = await this.finishVenda({ idVenda: this.getVenda.id });
+
+            if (! error) {
+              this.$router.push({ path: '/' })
+            }
+
+            this.compra_request_pending = false;
+
+            return;
+          }
+
           this.compra_request_pending = true;
 
-          const error = await this.finishVenda({ idVenda: this.getVenda.id });
+          const error = await this.payBarganha();
 
           if (! error) {
             this.$router.push({ path: '/' })
