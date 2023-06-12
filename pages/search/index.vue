@@ -54,7 +54,8 @@
           :default_hidden="false"
           :has_default="false"
           :options="getFilterOptions"
-          @model="rarity = $event"
+          @input="filtraResultados"
+          @model="sort = $event"
         />
       </div>
     </div>
@@ -145,6 +146,7 @@
         editor: '',
         region: '',
         rarity: '',
+        sort: '',
         request_pending: false,
       }
     },
@@ -314,6 +316,7 @@
         estado: this.condition,
         genero: this.gender,
         rarity: this.rarity,
+        sort: this.sort,
       })
 
       this.request_pending = false;
@@ -341,6 +344,7 @@
           estado: this.condition,
           genero: this.gender,
           rarity: this.rarity,
+          sort: this.sort,
         })
 
         this.request_pending = false;

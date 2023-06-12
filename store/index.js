@@ -188,7 +188,7 @@ export const actions = {
     }
   },
 
-  async fetchProdutos({ commit }, { search, estado, genero, rarity }) {
+  async fetchProdutos({ commit }, { search, estado, genero, rarity, sort }) {
     const query = supabase
       .from('produto')
       .select()
@@ -208,6 +208,18 @@ export const actions = {
 
     if (rarity) {
       query.eq('raridade', rarity)
+    }
+
+    if (sort) {
+      if (sort === 'recently') {
+        query.order('created_at', { ascending: false })
+      }
+      else if (sort === 'lower_price') {
+        query.order('preco', { ascending: true })
+      }
+      else {
+        query.order('preco', { ascending: false })
+      }
     }
 
     const { data, error } = await query
