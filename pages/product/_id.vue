@@ -680,6 +680,10 @@
       },
 
       async getPurchaseRoute() {
+        if (! this.getAuthentication?.user_id) {
+          return this.$router.push({ path: '/login' })
+        }
+
         if (! this.getCarrinho.some(produto => produto.id === this.getProduto.id)) {
           this.add_produto_request_pending = true
 
