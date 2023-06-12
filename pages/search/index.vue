@@ -256,6 +256,10 @@
       getFilterOptions() {
         return [
           {
+            value: '',
+            label: 'sem filtro',
+          },
+          {
             value: 'recently',
             label: 'mais recentes',
           },
