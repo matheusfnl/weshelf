@@ -110,9 +110,10 @@
             bold
             color="orange"
             :disabled="getIsMyProduct"
+            :request_pending="wishlist_request_pending"
             @click="wishlistClick"
           >
-            <img class="wishlist-icon" :src="wishlistIcon" />
+            <img class="wishlist-icon" :src="getWishlistIcon" />
           </AppButton>
         </div>
 
@@ -369,6 +370,7 @@
   import InputTextArea from '../../components/inputs/InputTextArea.vue'
 
   import wishlistIcon from '../../static/utils/wishlist.png';
+  import wishlistRemoveIcon from '../../static/utils/wishlist-remove.png';
   import securityIcon from '../../static/utils/security.png';
   import sendIcon from '../../static/utils/send.png';
 
@@ -383,10 +385,12 @@
     data() {
       return {
         wishlistIcon,
+        wishlistRemoveIcon,
         sendIcon,
         securityIcon,
         selected_image: 0,
         should_show_modal: false,
+        wishlist_request_pending: false,
         barganha_text: '',
         selected_item: -1,
         request_pending: false,
@@ -547,6 +551,27 @@
       getIsOnCart() {
         return this.getCarrinho.some(produto => produto.id === this.getProduto.id)
       },
+
+      getWishlistIcon() {
+        const {
+          wishlist,
+          id,
+        } = this.getAuthentication
+
+        const { id: idProduto } = this.getProduto
+
+        if (id && idProduto) {
+          if (wishlist.some(item => {
+            return item.id === idProduto;
+          })) {
+            return wishlistRemoveIcon
+          }
+
+          return wishlistIcon;
+        }
+
+        return wishlistIcon
+      },
     },
 
     async mounted() {
@@ -571,6 +596,7 @@
         'addProdutoVendaLocal',
         'addProdutoVenda',
         'createBarganha',
+        'adicionaRemoveWishlist',
       ]),
 
       getUserProfileRoute() {
@@ -600,10 +626,22 @@
         }
       },
 
-      wishlistClick() {
+      async wishlistClick() {
         if (! this.getAuthentication?.user_id) {
           return this.$router.push({ path: '/login' })
         }
+
+        this.wishlist_request_pending = true;
+
+        await this.adicionaRemoveWishlist({
+          id: this.getProduto.id,
+          nome: this.getProduto.livro_nome,
+          imagem: this.getProduto.images[0],
+          arroba: this.getProduto.user_arroba,
+          userArroba: this.getAuthentication.arroba,
+        })
+
+        this.wishlist_request_pending = false;
       },
 
       closeModal() {

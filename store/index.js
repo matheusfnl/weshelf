@@ -425,6 +425,50 @@ export const actions = {
     }
   },
 
+  async adicionaRemoveWishlist({ commit, getters }, { id, nome, imagem, arroba, userArroba }) {
+    try {
+      const { getAuthentication } = getters;
+      const { wishlist } = getAuthentication;
+
+      const wishlistOriginal = Array.from(wishlist);
+
+      const wishlistIds = wishlistOriginal.map(item => item.id)
+
+      if (wishlistIds.includes(id)) {
+        const newWishlist = wishlistOriginal.filter(item => item.id !== id)
+
+        await supabase
+          .from('user_public_data')
+          .update({ wishlist: newWishlist })
+          .eq('arroba', userArroba)
+
+        return commit('newAuthentication', {
+          ...getAuthentication,
+          wishlist: newWishlist,
+        })
+      }
+
+      wishlistOriginal.push({
+        id,
+        nome,
+        imagem,
+        arroba,
+      })
+
+      await supabase
+        .from('user_public_data')
+        .update({ wishlist: wishlistOriginal })
+        .eq('arroba', userArroba)
+
+      return commit('newAuthentication', {
+        ...getAuthentication,
+        wishlist: wishlistOriginal,
+      })
+    } catch (err) {
+      return true;
+    }
+  },
+
   addProdutoVendaLocal({ commit }, { produto }) {
     commit('newAddProdutoVendaLocal', produto)
   },

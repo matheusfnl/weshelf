@@ -153,12 +153,13 @@
           <div v-if="getIsMyProfile" class="divisor-container">
             <div class="title">WISHLIST</div>
 
-            <div class="content wishlist mt-2">
+            <div v-if="getWishlist.length" class="content wishlist mt-2">
               <div
-                v-for="(item, index) in profile.wishlist"
+                v-for="(item, index) in getWishlist"
                 :key="index"
                 class="wishlist-card"
-                :style="{ backgroundImage: `url(${item.image})` }"
+                :style="{ backgroundImage: `url(${getImageUrl(item.imagem)})` }"
+                @click="getProductRoute"
               />
             </div>
           </div>
@@ -393,15 +394,15 @@
       ]),
 
       getProfileName() {
-        return this.getUser.name;
+        return this.getUser?.name || '';
       },
 
       getProfile() {
-        return this.getUser.arroba
+        return this.getUser?.arroba || ''
       },
 
       getUserRate() {
-        return this.getUser.rate;
+        return this.getUser?.rate || 0;
       },
 
       getUserAvaliacoes() {
@@ -409,11 +410,17 @@
       },
 
       getQuantidadeAnunciados() {
-        return this.getUser.qtd_anuncios
+        return this.getUser?.qtd_anuncios || 0
       },
 
       getQuantidadeVendidos() {
-        return this.getUser.qtd_vendidos
+        return this.getUser?.qtd_vendidos || 0
+      },
+
+      getWishlist() {
+        const { wishlist = [] } = this.getUser;
+
+        return wishlist;
       },
 
       getProfileCreatedAt() {
@@ -430,10 +437,6 @@
 
       getShelfs() {
         return this.getUser.prateleiras || []
-      },
-
-      getWishlist() {
-        return this.profile.wishlist
       },
 
       getIsMyProfile() {
@@ -522,6 +525,10 @@
         const mes = barganha.updated_date.substring(5, 7);
 
         return `${dia}/${mes}`
+      },
+
+      getProductRoute(produto) {
+        this.$router.push({ path: `/product/${produto.id}` })
       },
 
       getShelfQuantity(index) {
