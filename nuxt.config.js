@@ -9,7 +9,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'weshelf',
+    title: 'WeShelf',
     htmlAttrs: {
       lang: 'en',
     },
