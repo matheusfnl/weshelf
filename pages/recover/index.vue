@@ -58,6 +58,8 @@
   import InputText from '../../components/inputs/InputText.vue';
   import AppButton from '../../components/inputs/AppButton.vue';
 
+  import LoggedMiddleware from '../../mixins/Logged.vue'
+
   export default {
     name: 'AuthPage',
     components: {
@@ -65,6 +67,7 @@
       AppButton,
     },
 
+    mixins: [LoggedMiddleware],
     data() {
       return {
         email: '',
