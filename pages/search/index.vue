@@ -28,6 +28,7 @@
           :default_disabled="false"
           :default_hidden="false"
           :options="getGenderOptions"
+          :default_value="gender"
           @model="gender = $event"
         />
 
@@ -273,6 +274,10 @@
         return this.$route.query.q
       },
 
+      getRouteQueryGender() {
+        return this.$route.query.g
+      },
+
       getItemsQuantity() {
         return this.catalog_items.length;
       },
@@ -287,6 +292,7 @@
     async mounted() {
       this.request_pending = true;
       this.search_value = this.getRouteQuerySearch;
+      this.gender = this.getRouteQueryGender
 
       await this.fetchProdutos({
         search: this.search_value,

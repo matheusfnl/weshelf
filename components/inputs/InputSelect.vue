@@ -10,6 +10,7 @@
 
     <select
       :id="id"
+      v-model="input_value"
       placeholder="selecione..."
       :class="getColorStyle"
       @input="$emit('input')"
@@ -72,6 +73,11 @@
         default: true,
       },
 
+      default_value: {
+        type: String,
+        default: '',
+      },
+
       required: {
         type: Boolean,
         default: false,
@@ -98,6 +104,10 @@
       },
     },
 
+    data() {
+      return { input_value: '' }
+    },
+
     computed: {
       getColorStyle() {
         if (this.color) {
@@ -112,6 +122,12 @@
 
         return '';
       },
+    },
+
+    mounted() {
+      setTimeout(() => {
+        this.input_value = this.default_value
+      }, 40)
     },
   }
 </script>
