@@ -10,6 +10,7 @@
         :key="index"
         class="banner"
         :style="{ backgroundImage: `url(${banner.image})` }"
+        @click="getSearchRoute(banner)"
       >
         <span class="banner-title">
           {{ banner.title }}
@@ -30,6 +31,22 @@
       resources: {
         type: Array,
         required: true,
+      },
+    },
+
+    methods: {
+      getSearchRoute(banner) {
+        if (banner.search.keyword) {
+          return this.$router.push({
+            path: '/search',
+            query: { q: banner.search.keyword },
+          })
+        }
+
+        return this.$router.push({
+          path: '/search',
+          query: { g: banner.search.gender },
+        })
       },
     },
   }

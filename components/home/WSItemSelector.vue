@@ -8,6 +8,7 @@
       :key="index"
       class="card-image"
       :style="{ backgroundImage: `url(${item.src})` }"
+      @click="getSearchRoute(item)"
     />
   </div>
 </template>
@@ -30,6 +31,15 @@
     computed: {
       getCardsPosition() {
         return `transform: translateX(${this.selected_item * -248}px)`;
+      },
+    },
+
+    methods: {
+      getSearchRoute(item) {
+        return this.$router.push({
+          path: '/search',
+          query: { q: item.search },
+        })
       },
     },
   }

@@ -32,26 +32,6 @@
         />
 
         <InputSelect
-          id="selectEditor"
-          default_label="editora"
-          color="clean_red"
-          :default_disabled="false"
-          :default_hidden="false"
-          :options="getEditorOptions"
-          @model="editor = $event"
-        />
-
-        <InputSelect
-          id="selectRegion"
-          default_label="região"
-          color="clean_red"
-          :default_disabled="false"
-          :default_hidden="false"
-          :options="getRegionOptions"
-          @model="region = $event"
-        />
-
-        <InputSelect
           id="selectRarity"
           default_label="raridade"
           color="clean_red"
@@ -275,10 +255,6 @@
       getFilterOptions() {
         return [
           {
-            value: 'more_relevant',
-            label: 'mais relevantes',
-          },
-          {
             value: 'recently',
             label: 'mais recentes',
           },
@@ -386,7 +362,7 @@
 
   .input-container {
     display: flex;
-    width: 50%;
+    width: 100%;
     flex-direction: column;
   }
 

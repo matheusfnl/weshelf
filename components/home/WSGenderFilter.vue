@@ -10,6 +10,7 @@
           v-for="(filter, index) in filters"
           :key="index"
           class="filter-item"
+          @click="getSearchRoute(filter)"
         >
           <div class="icon-container mb-2">
             <img
@@ -51,7 +52,7 @@
           {
             name: 'Todos',
             icon: allIcon,
-            search: 'all',
+            search: '',
           },
           {
             name: 'Ação',
@@ -110,6 +111,15 @@
           },
         ],
       }
+    },
+
+    methods: {
+      getSearchRoute(filter) {
+        return this.$router.push({
+          path: '/search',
+          query: { g: filter.search },
+        })
+      },
     },
   }
 </script>
