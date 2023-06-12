@@ -188,15 +188,29 @@ export const actions = {
     }
   },
 
-  async fetchProdutos({ commit }, { search = '', estado, genero, rarity }) {
-    const { data, error } = await supabase
+  async fetchProdutos({ commit }, { search, estado, genero, rarity }) {
+    const query = supabase
       .from('produto')
       .select()
-      .eq('visivel', true)
-      // .textSearch('titulo', search ? estado : undefined)
-      // .eq('estado', estado !== '' ? estado : undefined)
-      // .eq('genero', genero !== '' ? genero : undefined)
-      // .eq('raridade', rarity !== '' ? rarity : undefined)
+      .eq('visivel', true);
+
+    if (search) {
+      query.textSearch('titulo', search);
+    }
+
+    if (estado) {
+      query.eq('estado', estado);
+    }
+
+    if (genero) {
+      query.eq('genero', genero)
+    }
+
+    if (rarity) {
+      query.eq('raridade', rarity)
+    }
+
+    const { data, error } = await query
 
     if (! error) {
       return commit('newCatalogoProdutos', data);

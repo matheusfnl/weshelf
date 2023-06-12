@@ -2,11 +2,12 @@
   <div class="default-container">
     <div class="search-container mb-4">
       <div class="input-container">
-        <input
-          :value="search_value"
+        <InputText
+          id="searchQuery"
+          class="mt-2"
           placeholder="digite o que você quer procurar"
-          spellcheck="false"
-          type="textx"
+          :value="search_value"
+          @model="search_value = $event"
         />
       </div>
 
@@ -18,6 +19,7 @@
           :default_disabled="false"
           :default_hidden="false"
           :options="getConditionOptions"
+          @input="filtraResultados"
           @model="condition = $event"
         />
 
@@ -29,6 +31,7 @@
           :default_hidden="false"
           :options="getGenderOptions"
           :default_value="gender"
+          @input="filtraResultados"
           @model="gender = $event"
         />
 
@@ -39,6 +42,7 @@
           :default_disabled="false"
           :default_hidden="false"
           :options="getRarityOptions"
+          @input="filtraResultados"
           @model="rarity = $event"
         />
 
@@ -118,15 +122,18 @@
 </template>
 
 <script>
+  import { debounce } from 'lodash';
   import { mapGetters, mapActions } from 'vuex';
 
   import MoonLoader from 'vue-spinner/src/MoonLoader.vue';
   import InputSelect from '../../components/inputs/InputSelect.vue';
+  import InputText from '../../components/inputs/InputText.vue';
 
   export default {
     name: 'SearchPage',
     components: {
       InputSelect,
+      InputText,
       MoonLoader,
     },
 
@@ -137,7 +144,7 @@
         gender: '',
         editor: '',
         region: '',
-        rarity: false,
+        rarity: '',
         request_pending: false,
       }
     },
@@ -288,15 +295,19 @@
     },
 
     watch: {
-      getRouteQuerySearch() {
-        this.search_value = this.getRouteQuerySearch;
+      async search_value(state, prevState) {
+        if (state !== prevState) {
+          this.request_pending = true;
+
+          await this.buscaProdutosData();
+        }
       },
     },
 
     async mounted() {
       this.request_pending = true;
-      this.search_value = this.getRouteQuerySearch;
-      this.gender = this.getRouteQueryGender
+      this.search_value = this.getRouteQuerySearch || '';
+      this.gender = this.getRouteQueryGender || ''
 
       await this.fetchProdutos({
         search: this.search_value,
@@ -317,6 +328,23 @@
 
         return false;
       },
+
+      async filtraResultados() {
+        this.request_pending = true;
+
+        await this.buscaProdutosData();
+      },
+
+      buscaProdutosData: debounce(async function() {
+        await this.fetchProdutos({
+          search: this.search_value,
+          estado: this.condition,
+          genero: this.gender,
+          rarity: this.rarity,
+        })
+
+        this.request_pending = false;
+      }, 1000),
 
       getDiscountValue(item) {
         if (this.old_preco) {
@@ -363,7 +391,7 @@
 </script>
 
 <stytle scoped lang=scss>
-  .default-container { padding: 60px 100px; }
+  .default-container { padding: 50px 100px 60px; }
   .search-container {
     display: flex;
     align-items: center;
