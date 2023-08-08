@@ -2,7 +2,7 @@
 
 ## Faça um Fork do proejto
 
-Tutorial bacana do moço gente boa (https://www.youtube.com/watch?v=q-QTbNu8Ybc)
+Link: https://weshelf.vercel.app/
 
 ## Clonando o projeto
 
